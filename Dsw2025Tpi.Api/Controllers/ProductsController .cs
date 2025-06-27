@@ -1,0 +1,39 @@
+﻿using Dsw2025Tpi.Application.Dtos;
+using Dsw2025Tpi.Application.Services;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Dsw2025Tpi.Api.Controllers
+{
+    [ApiController]
+    [Route("api/products")]
+    public class ProductsController : ControllerBase
+    {
+        private readonly IProductsManagementService _productsManagementService;
+
+        public ProductsController(IProductsManagementService productsManagementService)
+        {
+            _productsManagementService = productsManagementService;
+        }
+
+        [HttpPost]
+        [ProducesResponseType(typeof(ProductModel.ProductResponse), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<ProductModel.ProductResponse>> AddProduct([FromBody] ProductModel.ProductRequest request)
+        {
+            try
+            {
+                var response = await _productsManagementService.AddProduct(request);
+                return CreatedAtAction(nameof(AddProduct), new { id = response.Id }, response);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                // Manejo de otros errores
+                return StatusCode(StatusCodes.Status500InternalServerError, "Ocurrió un error inesperado.");
+            }
+        }
+    }
+}

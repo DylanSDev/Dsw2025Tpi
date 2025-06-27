@@ -1,10 +1,11 @@
 ﻿using Dsw2025Tpi.Domain.Entities;
 using Dsw2025Tpi.Domain.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
 namespace Dsw2025Tpi.Data.Repositories;
 
-public class EfRepository: IRepository
+public class EfRepository : IRepository
 {
     private readonly Dsw2025TpiContext _context;
 

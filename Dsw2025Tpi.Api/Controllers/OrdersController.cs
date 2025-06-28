@@ -22,24 +22,8 @@ namespace Dsw2025Tpi.Api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<OrderModel.OrderResponse>> AddOrder([FromBody] OrderModel.OrderRequest request)
         {
-            try
-            {
-                var response = await _orderManagementService.AddOrder(request);
-                return CreatedAtAction(nameof(AddOrder), new { id = response.Id }, response); // 201 Created
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message); // 400 Bad Request
-            }
-            catch (EntityNotFoundException ex)
-            {
-                return NotFound(ex.Message); // 404 Not Found
-            }
-            catch (Exception)
-            {
-                // Devolver 500 Internal Server Error para errores inesperados
-                return StatusCode(StatusCodes.Status500InternalServerError, "Ocurrió un error inesperado al procesar la orden.");
-            }
+            var response = await _orderManagementService.AddOrder(request);
+            return CreatedAtAction(nameof(AddOrder), new { id = response.Id }, response); // 201 Created
         }
     }
 }

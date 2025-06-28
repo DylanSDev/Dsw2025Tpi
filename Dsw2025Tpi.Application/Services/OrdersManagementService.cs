@@ -40,42 +40,44 @@ namespace Dsw2025Tpi.Application.Services
 
             foreach (var itemRequest in request.OrderItems)
             {
-                // Buscamos el producto con el ID
+                // 1. Buscamos el producto en el catálogo usando su ID
                 var product = await _repository.GetById<Product>(itemRequest.ProductId);
 
-                // Verificamos que exista y esté activo
+                // 2. Verificamos que exista y esté activo
                 if (product == null || !product.IsActive)
                 {
                     throw new EntityNotFoundException($"Producto con ID {itemRequest.ProductId} no encontrado o inactivo.");
                 }
 
-                // Validamos que la cantidad solicitada no exceda el stock disponible
+                // 3. Validamos que la cantidad solicitada no exceda el stock disponible
                 if (product.StockQuantity < itemRequest.Quantity)
                 {
                     throw new ArgumentException($"Stock insuficiente para el producto {product.Name}. Cantidad disponible: {product.StockQuantity}");
                 }
 
-                // Calculamos el subtotal y lo añadimos al total de la orden
-                var subtotal = itemRequest.Quantity * itemRequest.CurrentUnitPrice;
+                // 4. Calculamos el subtotal utilizando el precio del producto del catálogo
+                var subtotal = itemRequest.Quantity * product.CurrentUnitPrice;
                 totalAmount += subtotal;
 
-                // Creamos el OrderItem
+                // 5. Creamos el OrderItem con la información del producto obtenida del catálogo
                 var orderItem = new OrderItem
                 {
                     Quantity = itemRequest.Quantity,
-                    UnitPrice = itemRequest.CurrentUnitPrice, // Usamos el precio del momento de la compra
+                    UnitPrice = product.CurrentUnitPrice, // Usamos el precio del catálogo
                     Subtotal = subtotal,
                     ProductId = product.Id,
+                    // No necesitas Name y Description en el OrderItem, ya que no son parte de la entidad de dominio.
+                    // Si el TPI lo exige, puedes agregarlos a la entidad OrderItem.
                 };
                 orderItems.Add(orderItem);
 
-                // Decrementamos el stock del producto
+                // 6. Decrementamos el stock del producto
                 product.StockQuantity -= itemRequest.Quantity;
                 await _repository.Update(product);
             }
 
             // 4. Creamos la orden
-            var order = new Order(DateTime.Now, request.ShippingAddress, request.BillingAddress, "", totalAmount);
+            var order = new Order(DateTime.Now, request.ShippingAddress, request.BillingAddress, request.Notes, totalAmount);
             order.CustomerId = customer.Id;
             order.OrderItems = orderItems;
 
@@ -85,8 +87,6 @@ namespace Dsw2025Tpi.Application.Services
             // 6. Mapeamos la respuesta
             var responseItems = order.OrderItems.Select(oi => new OrderModel.OrderItemResponse(
                 oi.ProductId,
-                "", // El nombre y la descripción no están en el objeto OrderItem, por lo que los dejamos vacíos o podemos buscarlos de nuevo.
-                "",
                 oi.UnitPrice,
                 oi.Quantity,
                 oi.Subtotal
@@ -97,6 +97,7 @@ namespace Dsw2025Tpi.Application.Services
                 order.CustomerId,
                 order.ShippingAddress,
                 order.BillingAddress,
+                order.Notes,
                 order.CreateDate,
                 order.TotalAmount,
                 responseItems,

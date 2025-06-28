@@ -23,8 +23,9 @@ builder.Services.AddDbContext<Dsw2025TpiContext>(options =>
 // 2. Inyectar el repositorio
 builder.Services.AddScoped<IRepository, EfRepository>();
 
-// Inyectar el servicio de gestión de productos
+// Inyectar el servicio de gestión de productos y ordenes
 builder.Services.AddScoped<IProductsManagementService, ProductsManagementService>();
+builder.Services.AddScoped<IOrderManagementService, OrdersManagementService>();
 
 var app = builder.Build();
 

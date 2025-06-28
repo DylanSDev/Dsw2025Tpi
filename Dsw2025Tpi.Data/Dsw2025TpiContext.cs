@@ -18,8 +18,6 @@ public class Dsw2025TpiContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-
-        // Configuramos el mapeo de la entidad Product
         var dbProduct = modelBuilder.Entity<Product>().ToTable("Products");
         dbProduct.Property(p => p.Sku)
             .IsRequired()
@@ -39,8 +37,6 @@ public class Dsw2025TpiContext : DbContext
             .IsRequired();
         dbProduct.Property(p => p.StockQuantity)
             .IsRequired();
-
-        // Configuramos el mapeo de la entidad Customer
         var dbCustomer = modelBuilder.Entity<Customer>().ToTable("Customers");
         dbCustomer.Property(c => c.Name)
             .HasMaxLength(100)
@@ -51,8 +47,6 @@ public class Dsw2025TpiContext : DbContext
         dbCustomer.Property(c => c.PhoneNumber)
             .HasMaxLength(15)
             .IsRequired();
-
-        // Configuramos el mapeo de la entidad Order
         var dbOrder = modelBuilder.Entity<Order>().ToTable("Orders");
         dbOrder.Property(o => o.CreateDate)
             .IsRequired();
@@ -67,8 +61,6 @@ public class Dsw2025TpiContext : DbContext
         dbOrder.Property(o => o.TotalAmount)
             .HasPrecision(15, 2)
             .IsRequired();
-
-        // Configuramos el mapeo de la entidad OrderItem
         var dbOrderItem = modelBuilder.Entity<OrderItem>().ToTable("OrderItems");
         dbOrderItem.Property(oi => oi.Quantity)
             .IsRequired();
@@ -78,8 +70,6 @@ public class Dsw2025TpiContext : DbContext
         dbOrderItem.Property(oi => oi.Subtotal)
             .HasPrecision(15, 2)
             .IsRequired();
-
-        // Configuramos las relaciones
         modelBuilder.Entity<Order>()
             .HasOne(o => o.Customer)
             .WithMany(c => c.Orders)

@@ -29,29 +29,24 @@ public class GlobalExceptionHandlerMiddleware
     private static Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
         context.Response.ContentType = "application/json";
-        var statusCode = HttpStatusCode.InternalServerError; // Default a 500
-        var message = "Ocurrió un error inesperado al procesar la solicitud.";
+        var statusCode = HttpStatusCode.InternalServerError;         var message = "Ocurrió un error inesperado al procesar la solicitud.";
 
         switch (exception)
         {
             case ArgumentException:
-                statusCode = HttpStatusCode.BadRequest; // 400 Bad Request
-                message = exception.Message;
+                statusCode = HttpStatusCode.BadRequest;                 message = exception.Message;
                 break;
 
             case EntityNotFoundException:
-                statusCode = HttpStatusCode.NotFound; // 404 Not Found
-                message = exception.Message;
+                statusCode = HttpStatusCode.NotFound;                 message = exception.Message;
                 break;
 
             case DuplicatedEntityException:
-                statusCode = HttpStatusCode.BadRequest; // 400 Bad Request
-                message = exception.Message;
+                statusCode = HttpStatusCode.BadRequest;                 message = exception.Message;
                 break;
 
             case PriceNullException:
-                statusCode = HttpStatusCode.BadRequest; // 400 Bad Request
-                message = exception.Message;
+                statusCode = HttpStatusCode.BadRequest;                 message = exception.Message;
                 break;
 
             default:

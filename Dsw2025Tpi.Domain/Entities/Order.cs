@@ -8,8 +8,6 @@
         public string BillingAddress { get; set; }
         public string Notes { get; set; }
         public decimal TotalAmount { get; set; }
-
-        //Relacionamos la Order con un Customer
         public Guid CustomerId { get; set; }
 
         public Customer Customer { get; set; }
@@ -24,8 +22,6 @@
             Notes = notes;
             TotalAmount = totalAmount;
         }
-
-        //Una Order puede tener muchos OrderItems
         public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
     }
 }

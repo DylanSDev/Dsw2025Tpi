@@ -23,7 +23,6 @@ namespace Dsw2025Tpi.Api.Controllers
         public async Task<ActionResult<OrderModel.OrderResponse>> AddOrder([FromBody] OrderModel.OrderRequest request)
         {
             var response = await _orderManagementService.AddOrder(request);
-            return CreatedAtAction(nameof(AddOrder), new { id = response.Id }, response); // 201 Created
-        }
+            return CreatedAtAction(nameof(AddOrder), new { id = response.Id }, response);         }
     }
 }

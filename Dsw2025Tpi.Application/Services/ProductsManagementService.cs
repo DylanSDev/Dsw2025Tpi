@@ -13,8 +13,6 @@ public class ProductsManagementService : IProductsManagementService
     {
         _repository = repository;
     }
-
-    // Obtener un producto por ID
     public async Task<ProductModel.ProductResponseUpdate>? GetProductById(Guid id)
     {
         var product = await _repository.First<Product>(p => p.Id == id && p.IsActive == true);
@@ -31,8 +29,6 @@ public class ProductsManagementService : IProductsManagementService
             product.IsActive
         );
     }
-
-    // Obtener todos los productos
     public async Task<List<ProductModel.ProductResponseUpdate>?> GetProducts()
     {
         var products = await _repository.GetAll<Product>();
@@ -53,8 +49,6 @@ public class ProductsManagementService : IProductsManagementService
         p.IsActive
     )).ToList();
     }
-
-    // Agregar un nuevo producto
     public async Task<ProductModel.ProductResponse> AddProduct(ProductModel.ProductRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.Sku) ||
@@ -66,7 +60,6 @@ public class ProductsManagementService : IProductsManagementService
         {
             throw new ArgumentException("Valores para el producto no validos");
         }
-        //VALIDACIONES
         if (request.Price <= 0) throw new PriceNullException("El precio del producto no puede ser cero o menor.");
         var exist = await _repository.First<Product>(p => p.Sku == request.Sku);
         if (exist != null) throw new DuplicatedEntityException($"Ya existe un producto con el Sku {request.Sku}");
@@ -76,8 +69,6 @@ public class ProductsManagementService : IProductsManagementService
         await _repository.Add(product);
         return new ProductModel.ProductResponse(product.Id, product.Sku, product.Name, product.CurrentUnitPrice, product.InternalCode, product.Description, product.StockQuantity);
     }
-
-    // Deshabilitar un producto por ID
     public async Task<bool> DisableProductAsync(Guid id)
     {
         var product = await _repository.GetById<Product>(id);
@@ -89,8 +80,6 @@ public class ProductsManagementService : IProductsManagementService
         await _repository.Update(product);
         return true;
     }
-
-    // Actualizar un producto por ID
     public async Task<ProductModel.ProductResponseUpdate> UpdateProductAsync(ProductModel.ProductRequest request, Guid id)
     {
         var product = await _repository.GetById<Product>(id);
@@ -102,19 +91,13 @@ public class ProductsManagementService : IProductsManagementService
                 string.IsNullOrWhiteSpace(request.Name) ||
                 request.Price <= 0)
             throw new ArgumentException("Valores para el producto no validos");
-
-        // Actualiza los campos de la entidad
         product.Sku = request.Sku;
         product.InternalCode = request.InternalCode;
         product.Name = request.Name;
         product.Description = request.Descripcion;
         product.CurrentUnitPrice = request.Price;
         product.StockQuantity = request.Stock;
-
-        // Guarda los cambios
         await _repository.Update(product);
-
-        // Mapea a DTO de respuesta
         return new ProductModel.ProductResponseUpdate(
             product.Id,
             product.Sku,

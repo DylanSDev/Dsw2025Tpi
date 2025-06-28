@@ -9,18 +9,19 @@ namespace Dsw2025Tpi.Application.Dtos
     public class OrderModel
     {
         //Requests
-        public record OrderRequest(Guid CustomerId, string ShippingAddress, string BillingAddress, List<OrderItemModel> OrderItems);
-        public record OrderItemModel(Guid ProductId, int Quantity, string Name, string Description, decimal CurrentUnitPrice);
+        public record OrderRequest(Guid CustomerId, string ShippingAddress, string BillingAddress, string Notes, List<OrderItemModel> OrderItems);
+        public record OrderItemModel(Guid ProductId, int Quantity);
 
         //Responses
         public record OrderResponse(Guid Id,
             Guid CustomerId,
             string ShippingAddress,
             string BillingAddress,
+            string Notes,
             DateTime Date,
             decimal TotalAmount,
             List<OrderItemResponse> OrderItems,
             string Status);
-        public record OrderItemResponse(Guid ProductId, string Name, string Description, decimal UnitPriceint, int Quantity, decimal Subtotal);
+        public record OrderItemResponse(Guid ProductId, decimal UnitPrice, int Quantity, decimal Subtotal);
     }
 }

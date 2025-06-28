@@ -1,0 +1,87 @@
+Productos: POST Y GET
+{
+  "sku": "PROD-001",
+  "name": "Auriculares Bluetooth",
+  "price": 15999.99,
+  "internalCode": "AUR-BT-001",
+  "descripcion": "Auriculares inalámbricos con cancelación de ruido",
+  "stock": 50
+}
+
+{
+  "sku": "PROD-002",
+  "name": "Teclado Mecánico RGB",
+  "price": 24999.50,
+  "internalCode": "TECL-RGB-002",
+  "descripcion": "Teclado mecánico con retroiluminación RGB y switches rojos",
+  "stock": 30
+}
+
+{
+  "sku": "PROD-003",
+  "name": "Mouse Gamer Inalámbrico",
+  "price": 18999.00,
+  "internalCode": "MOUSE-GAM-003",
+  "descripcion": "Mouse ergonómico con sensor óptico de alta precisión y batería recargable",
+  "stock": 75
+}
+
+
+Productos: PUT 
+{
+  "sku": "PROD-003",
+  "name": "Mouse Gamer Inalámbrico Aureox",
+  "price": 23999.00,
+  "internalCode": "MOUSE-GAM-003",
+  "descripcion": "Mouse ergonómico con sensor óptico de alta precisión y batería recargable",
+  "stock": 75
+}
+
+Productos: PATCH
+
+Pasar el id del PROD-003
+
+Ordenes: POST
+
+{
+  "customerId": "id-customer",
+  "shippingAddress": "Av. Siempre Viva 742, Springfield",
+  "billingAddress": "Av. Siempre Viva 742, Springfield",
+  "notes": "Entregar por la tarde, por favor.",
+  "orderItems": [
+    {
+      "productId": "id-product",
+      "quantity": 10
+    },
+    {
+      "productId": "id-product",
+      "quantity": 9
+    }
+  ]
+}
+
+{
+  "customerId": "id-customer",
+  "shippingAddress": "Calle Falsa 123, Capital Federal",
+  "billingAddress": "Calle Falsa 123, Capital Federal",
+  "notes": "Llamar antes de entregar.",
+  "orderItems": [
+    {
+      "productId": "id-product",
+      "quantity": 6
+    },
+    {
+      "productId": "id-product",
+      "quantity": 8
+    }
+  ]
+}
+
+
+
+
+
+
+
+
+

@@ -91,7 +91,7 @@ public class ProductsManagementService : IProductsManagementService
     }
 
     // Actualizar un producto por ID
-    public async Task<ProductModel.ProductResponseUpdate> UpdateAsync(ProductModel.ProductRequest request, Guid id)
+    public async Task<ProductModel.ProductResponseUpdate> UpdateProductAsync(ProductModel.ProductRequest request, Guid id)
     {
         var product = await _repository.GetById<Product>(id);
         if (product == null)

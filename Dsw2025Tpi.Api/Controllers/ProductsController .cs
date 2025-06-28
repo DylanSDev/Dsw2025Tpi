@@ -10,12 +10,13 @@ namespace Dsw2025Tpi.Api.Controllers
     {
         private readonly IProductsManagementService _productsManagementService;
 
-        //Este endpoint es para agregar un producto.
+        
         public ProductsController(IProductsManagementService productsManagementService)
         {
             _productsManagementService = productsManagementService;
         }
 
+        //Este endpoint es para agregar un producto.
         [HttpPost]
         [ProducesResponseType(typeof(ProductModel.ProductResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -85,6 +86,33 @@ namespace Dsw2025Tpi.Api.Controllers
             }
         }
 
+        // Endpoint para actualizar un producto.
+        [HttpPut("{id:guid}")]
+        [ProducesResponseType(typeof(ProductModel.ProductResponseUpdate), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+
+        public async Task<ActionResult<ProductModel.ProductResponseUpdate>> UpdateProduct([FromRoute]Guid id, [FromBody] ProductModel.ProductRequest request)
+        {
+            try
+            {
+                var updatedProduct = await _productsManagementService.UpdateProductAsync(request, id);
+                if (updatedProduct == null)
+                {
+                    return NotFound();
+                }
+                return Ok(updatedProduct);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                // Manejo de otros errores
+                return StatusCode(StatusCodes.Status500InternalServerError, "Ocurrió un error inesperado.");
+            }
+        }
 
 
     }

@@ -10,6 +10,7 @@ namespace Dsw2025Tpi.Api.Controllers
     {
         private readonly IProductsManagementService _productsManagementService;
 
+        //Este endpoint es para agregar un producto.
         public ProductsController(IProductsManagementService productsManagementService)
         {
             _productsManagementService = productsManagementService;
@@ -35,5 +36,33 @@ namespace Dsw2025Tpi.Api.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "Ocurrió un error inesperado.");
             }
         }
+
+
+        // Este endpoint es para obtener todos los productos.
+
+        [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<ProductModel.ProductResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+
+        public async Task<ActionResult<List<ProductModel.ProductResponse>>> GetProducts()
+        {
+            try
+            {
+                var products = await _productsManagementService.GetProducts();
+                if (products == null || !products.Any())
+                {
+                    return NoContent();
+                }
+                return Ok(products);
+            }
+            catch (Exception ex)
+            {
+                // Manejo de errores
+                return StatusCode(StatusCodes.Status500InternalServerError, "Ocurrió un error inesperado.");
+            }
+        }
+
+
+
     }
 }

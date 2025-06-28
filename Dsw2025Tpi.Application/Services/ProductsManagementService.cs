@@ -17,7 +17,7 @@ public class ProductsManagementService : IProductsManagementService
     // Obtener un producto por ID
     public async Task<ProductModel.ProductResponseUpdate>? GetProductById(Guid id)
     {
-        var product = await _repository.GetById<Product>(id);
+        var product = await _repository.First<Product>(p => p.Id == id && p.IsActive == true);
         if (product == null) throw new EntityNotFoundException("Producto no encontrado");
 
         return new ProductModel.ProductResponseUpdate(

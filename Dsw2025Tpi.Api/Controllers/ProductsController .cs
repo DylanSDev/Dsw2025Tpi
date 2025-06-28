@@ -1,4 +1,5 @@
 ﻿using Dsw2025Tpi.Application.Dtos;
+using Dsw2025Tpi.Application.Exceptions;
 using Dsw2025Tpi.Application.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -113,6 +114,31 @@ namespace Dsw2025Tpi.Api.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "Ocurrió un error inesperado.");
             }
         }
+
+        // Endpoint para deshabilitar un producto.
+        [HttpPatch("{id:guid}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+
+        public async Task<IActionResult> DisableProduct(Guid id)
+        {
+            try
+            {
+                await _productsManagementService.DisableProductAsync(id);
+                return NoContent();
+            }
+            catch (EntityNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                // Manejo de errores
+                return StatusCode(StatusCodes.Status500InternalServerError, "Ocurrió un error inesperado.");
+            }
+        }
+
+
 
 
     }

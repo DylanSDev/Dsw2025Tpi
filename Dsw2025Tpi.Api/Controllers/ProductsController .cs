@@ -62,6 +62,29 @@ namespace Dsw2025Tpi.Api.Controllers
             }
         }
 
+        //Endpoint para obtener un producto por ID.
+        [HttpGet("{id:guid}")]
+        [ProducesResponseType(typeof(ProductModel.ProductResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+
+        public async Task<ActionResult<ProductModel.ProductResponse>> GetProductById(Guid id)
+        {
+            try
+            {
+                var product = await _productsManagementService.GetProductById(id);
+                if (product == null)
+                {
+                    return NotFound();
+                }
+                return Ok(product);
+            }
+            catch (Exception ex)
+            {
+                // Manejo de errores
+                return StatusCode(StatusCodes.Status500InternalServerError, "Ocurrió un error inesperado.");
+            }
+        }
+
 
 
     }

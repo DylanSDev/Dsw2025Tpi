@@ -9,7 +9,7 @@ namespace Dsw2025Tpi.Application.Services
         Task<ProductModel.ProductResponseUpdate>? GetProductById(Guid id);
         Task<List<ProductModel.ProductResponseUpdate>?> GetProducts();
         Task<bool> DisableProductAsync(Guid id);
-        Task<ProductModel.ProductResponseUpdate> UpdateAsync(ProductModel.ProductRequest request, Guid id);
+        Task<ProductModel.ProductResponseUpdate> UpdateProductAsync(ProductModel.ProductRequest request, Guid id);
 
     }
 }

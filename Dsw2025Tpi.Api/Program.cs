@@ -3,7 +3,8 @@ using Dsw2025Tpi.Domain.Interfaces; // Asegúrate de agregar esta referencia
 using Dsw2025Tpi.Data.Repositories; // Asegúrate de agregar esta referencia
 using Microsoft.EntityFrameworkCore; // Asegúrate de agregar esta referencia
 using Dsw2025Tpi.Data.helpers; // Asegúrate de agregar esta referencia
-using Dsw2025Tpi.Domain.Entities; // Asegúrate de agregar esta referencia
+using Dsw2025Tpi.Domain.Entities;
+using Dsw2025Tpi.Application.Services; // Asegúrate de agregar esta referencia
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +22,9 @@ builder.Services.AddDbContext<Dsw2025TpiContext>(options =>
 
 // 2. Inyectar el repositorio
 builder.Services.AddScoped<IRepository, EfRepository>();
+
+// Inyectar el servicio de gestión de productos
+builder.Services.AddScoped<IProductsManagementService, ProductsManagementService>();
 
 var app = builder.Build();
 

@@ -53,11 +53,12 @@ public class ProductsManagementService : IProductsManagementService
     {
         if (string.IsNullOrWhiteSpace(request.Sku) ||
             string.IsNullOrWhiteSpace(request.InternalCode) ||
-            string.IsNullOrWhiteSpace(request.Description) ||             string.IsNullOrWhiteSpace(request.Name) ||
-            request.StockQuantity < 0)         {
+            string.IsNullOrWhiteSpace(request.Description) || string.IsNullOrWhiteSpace(request.Name) ||
+            request.StockQuantity < 0)
+        {
             throw new ArgumentException("Valores para el producto no validos");
         }
-        if (request.CurrentUnitPrice <= 0) throw new PriceNullException("El precio del producto no puede ser cero o menor.");         var exist = await _repository.First<Product>(p => p.Sku == request.Sku);
+        if (request.CurrentUnitPrice <= 0) throw new PriceNullException("El precio del producto no puede ser cero o menor."); var exist = await _repository.First<Product>(p => p.Sku == request.Sku);
         if (exist != null) throw new DuplicatedEntityException($"Ya existe un producto con el Sku {request.Sku}");
 
         var product = new Product(request.Sku, request.InternalCode, request.Name, request.Description, request.CurrentUnitPrice, request.StockQuantity);
@@ -79,18 +80,18 @@ public class ProductsManagementService : IProductsManagementService
     public async Task<ProductModel.ProductResponseUpdate> UpdateProductAsync(ProductModel.ProductRequest request, Guid id)
     {
         var product = await _repository.GetById<Product>(id);
-        if (product == null)
+        if (product == null || !product.IsActive)
             throw new EntityNotFoundException($"Producto con ID {id} no encontrado.");
         if (request == null ||
                 string.IsNullOrWhiteSpace(request.Sku) ||
                 string.IsNullOrWhiteSpace(request.InternalCode) ||
                 string.IsNullOrWhiteSpace(request.Name) ||
-                request.CurrentUnitPrice <= 0)             throw new ArgumentException("Valores para el producto no validos");
+                request.CurrentUnitPrice <= 0) throw new ArgumentException("Valores para el producto no validos");
         product.Sku = request.Sku;
         product.InternalCode = request.InternalCode;
         product.Name = request.Name;
-        product.Description = request.Description;         product.CurrentUnitPrice = request.CurrentUnitPrice;
-        product.StockQuantity = request.StockQuantity;         await _repository.Update(product);
+        product.Description = request.Description; product.CurrentUnitPrice = request.CurrentUnitPrice;
+        product.StockQuantity = request.StockQuantity; await _repository.Update(product);
         return new ProductModel.ProductResponseUpdate(
             product.Id,
             product.Sku,

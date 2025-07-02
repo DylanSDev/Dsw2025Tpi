@@ -2,12 +2,12 @@
 using System.Net;
 using System.Text.Json;
 
-public class GlobalExceptionHandlerMiddleware
+public class ExceptionHandler
 {
     private readonly RequestDelegate _next;
-    private readonly ILogger<GlobalExceptionHandlerMiddleware> _logger;
+    private readonly ILogger<ExceptionHandler> _logger;
 
-    public GlobalExceptionHandlerMiddleware(RequestDelegate next, ILogger<GlobalExceptionHandlerMiddleware> logger)
+    public ExceptionHandler(RequestDelegate next, ILogger<ExceptionHandler> logger)
     {
         _next = next;
         _logger = logger;
@@ -29,24 +29,24 @@ public class GlobalExceptionHandlerMiddleware
     private static Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
         context.Response.ContentType = "application/json";
-        var statusCode = HttpStatusCode.InternalServerError;         var message = "Ocurrió un error inesperado al procesar la solicitud.";
+        var statusCode = HttpStatusCode.InternalServerError; var message = "Ocurrió un error inesperado al procesar la solicitud.";
 
         switch (exception)
         {
             case ArgumentException:
-                statusCode = HttpStatusCode.BadRequest;                 message = exception.Message;
+                statusCode = HttpStatusCode.BadRequest; message = exception.Message;
                 break;
 
             case EntityNotFoundException:
-                statusCode = HttpStatusCode.NotFound;                 message = exception.Message;
+                statusCode = HttpStatusCode.NotFound; message = exception.Message;
                 break;
 
             case DuplicatedEntityException:
-                statusCode = HttpStatusCode.BadRequest;                 message = exception.Message;
+                statusCode = HttpStatusCode.BadRequest; message = exception.Message;
                 break;
 
             case PriceNullException:
-                statusCode = HttpStatusCode.BadRequest;                 message = exception.Message;
+                statusCode = HttpStatusCode.BadRequest; message = exception.Message;
                 break;
 
             default:

@@ -126,6 +126,41 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+using (var scope = app.Services.CreateScope())
+{
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+
+    string[] roleNames = { "admin", "user" }; // Define los roles que quieres crear
+
+    foreach (var roleName in roleNames)
+    {
+        if (!await roleManager.RoleExistsAsync(roleName))
+        {
+            await roleManager.CreateAsync(new IdentityRole(roleName));
+        }
+    }
+
+    // Opcional: Crear un usuario administrador por defecto si no existe
+    var adminUserEmail = "admin@example.com";
+    var adminUser = await userManager.FindByEmailAsync(adminUserEmail);
+
+    if (adminUser == null)
+    {
+        adminUser = new IdentityUser
+        {
+            UserName = "admin",
+            Email = adminUserEmail,
+            EmailConfirmed = true // Confirmar el email para que pueda iniciar sesión
+        };
+        var result = await userManager.CreateAsync(adminUser, "Admin123!"); // Contraseña segura para el admin
+        if (result.Succeeded)
+        {
+            await userManager.AddToRoleAsync(adminUser, "admin");
+        }
+    }
+}
+
 app.MapHealthChecks("/healthcheck");
 
 app.Run();

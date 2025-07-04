@@ -10,6 +10,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Dsw2025Tpi.Application.Services.Interfaces;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,6 +53,13 @@ builder.Services.AddSwaggerGen(options =>
 });
 builder.Services.AddHealthChecks();
 
+builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
+{
+    options.Password.RequiredLength = 8;
+})
+  .AddEntityFrameworkStores<AuthenticateContext>()
+  .AddDefaultTokenProviders();
+
 var jwtConfig = builder.Configuration.GetSection("JwtConfig");
 var keyText = jwtConfig["Key"] ?? throw new ArgumentNullException("JwtConfig:Key no está configurada.");
 var key = Encoding.UTF8.GetBytes(keyText);
@@ -81,7 +89,11 @@ builder.Services.AddDbContext<Dsw2025TpiContext>(options =>
 builder.Services.AddScoped<IRepository, EfRepository>();
 builder.Services.AddScoped<IProductsManagementService, ProductsManagementService>();
 builder.Services.AddScoped<IOrderManagementService, OrdersManagementService>();
+
 builder.Services.AddSingleton<JwtTokenService>();
+
+builder.Services.AddDbContext<AuthenticateContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())
@@ -107,6 +119,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseMiddleware<ExceptionHandler>();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

@@ -6,6 +6,10 @@ using Dsw2025Tpi.Data.helpers;
 using Dsw2025Tpi.Domain.Entities;
 using Dsw2025Tpi.Application.Services;
 using Microsoft.OpenApi.Models;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Dsw2025Tpi.Application.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,8 +51,30 @@ builder.Services.AddSwaggerGen(options =>
     options.EnableAnnotations();
 });
 builder.Services.AddHealthChecks();
-builder.Services.AddAuthentication()
-    .AddJwtBearer();
+
+var jwtConfig = builder.Configuration.GetSection("JwtConfig");
+var keyText = jwtConfig["Key"] ?? throw new ArgumentNullException("JwtConfig:Key no está configurada.");
+var key = Encoding.UTF8.GetBytes(keyText);
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtConfig["Issuer"],
+            ValidAudience = jwtConfig["Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(key)
+        };
+    });
+
 builder.Services.AddDbContext<Dsw2025TpiContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<IRepository, EfRepository>();

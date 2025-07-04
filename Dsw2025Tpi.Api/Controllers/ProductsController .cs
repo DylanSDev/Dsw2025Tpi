@@ -19,11 +19,12 @@ namespace Dsw2025Tpi.Api.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "dev")]
+        [Authorize(Roles = "admin")]
         [SwaggerOperation(Summary = "Crea un nuevo producto")]
         [ProducesResponseType(typeof(ProductModel.ProductResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<ActionResult<ProductModel.ProductResponse>> AddProduct([FromBody] ProductModel.ProductRequest request)
         {
             var response = await _productsManagementService.AddProduct(request);
@@ -34,7 +35,6 @@ namespace Dsw2025Tpi.Api.Controllers
         [SwaggerOperation(Summary = "Lista todos los productos")]
         [ProducesResponseType(typeof(IEnumerable<ProductModel.ProductResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<List<ProductModel.ProductResponse>>> GetProducts()
         {
             var products = await _productsManagementService.GetProducts();
@@ -49,7 +49,6 @@ namespace Dsw2025Tpi.Api.Controllers
         [SwaggerOperation(Summary = "Busca un producto por Id")]
         [ProducesResponseType(typeof(ProductModel.ProductResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<ProductModel.ProductResponse>> GetProductById(Guid id)
         {
             var product = await _productsManagementService.GetProductById(id);
@@ -62,11 +61,12 @@ namespace Dsw2025Tpi.Api.Controllers
 
         [HttpPut("{id:guid}")]
         [SwaggerOperation(Summary = "Actualiza un producto")]
-        [Authorize(Roles = "dev")]
+        [Authorize(Roles = "admin")]
         [ProducesResponseType(typeof(ProductModel.ProductResponseUpdate), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<ActionResult<ProductModel.ProductResponseUpdate>> UpdateProduct([FromRoute] Guid id, [FromBody] ProductModel.ProductRequest request)
         {
             var updatedProduct = await _productsManagementService.UpdateProductAsync(request, id);
@@ -75,10 +75,11 @@ namespace Dsw2025Tpi.Api.Controllers
 
         [HttpPatch("{id:guid}")]
         [SwaggerOperation(Summary = "Deshabilita un producto")]
-        [Authorize(Roles = "dev")]
+        [Authorize(Roles = "admin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> DisableProduct(Guid id)
         {
             await _productsManagementService.DisableProductAsync(id);

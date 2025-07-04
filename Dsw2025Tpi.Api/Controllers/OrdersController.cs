@@ -21,7 +21,7 @@ namespace Dsw2025Tpi.Api.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "dev,user")]
+        [Authorize(Roles = "admin,user")]
         [SwaggerOperation(Summary = "Crea una nueva orden")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

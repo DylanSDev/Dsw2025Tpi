@@ -77,9 +77,11 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddDbContext<Dsw2025TpiContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 builder.Services.AddScoped<IRepository, EfRepository>();
 builder.Services.AddScoped<IProductsManagementService, ProductsManagementService>();
 builder.Services.AddScoped<IOrderManagementService, OrdersManagementService>();
+builder.Services.AddSingleton<JwtTokenService>();
 
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())

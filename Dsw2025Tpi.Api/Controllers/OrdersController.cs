@@ -1,6 +1,6 @@
 ﻿using Dsw2025Tpi.Application.Dtos;
 using Dsw2025Tpi.Application.Exceptions;
-using Dsw2025Tpi.Application.Services;
+using Dsw2025Tpi.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Validations.Rules;
@@ -21,7 +21,7 @@ namespace Dsw2025Tpi.Api.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "dev,user")]
+        [Authorize(Roles = "admin,user")]
         [SwaggerOperation(Summary = "Crea una nueva orden")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

@@ -1,5 +1,6 @@
 ﻿using Dsw2025Tpi.Application.Dtos;
 using Dsw2025Tpi.Application.Exceptions;
+using Dsw2025Tpi.Application.Services.Interfaces;
 using Dsw2025Tpi.Domain.Entities;
 using Dsw2025Tpi.Domain.Interfaces;
 
@@ -13,6 +14,7 @@ public class ProductsManagementService : IProductsManagementService
     {
         _repository = repository;
     }
+
     public async Task<ProductModel.ProductResponseUpdate>? GetProductById(Guid id)
     {
         var product = await _repository.First<Product>(p => p.Id == id && p.IsActive == true);
@@ -29,6 +31,7 @@ public class ProductsManagementService : IProductsManagementService
             product.IsActive
         );
     }
+
     public async Task<List<ProductModel.ProductResponseUpdate>?> GetProducts()
     {
         var products = await _repository.GetAll<Product>();
@@ -49,6 +52,7 @@ public class ProductsManagementService : IProductsManagementService
         p.IsActive
     )).ToList();
     }
+
     public async Task<ProductModel.ProductResponse> AddProduct(ProductModel.ProductRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.Sku) ||
@@ -66,6 +70,7 @@ public class ProductsManagementService : IProductsManagementService
         await _repository.Add(product);
         return new ProductModel.ProductResponse(product.Id, product.Sku, product.Name, product.CurrentUnitPrice, product.InternalCode, product.Description, product.StockQuantity);
     }
+
     public async Task<bool> DisableProductAsync(Guid id)
     {
         var product = await _repository.GetById<Product>(id);
@@ -77,6 +82,7 @@ public class ProductsManagementService : IProductsManagementService
         await _repository.Update(product);
         return true;
     }
+
     public async Task<ProductModel.ProductResponseUpdate> UpdateProductAsync(ProductModel.ProductRequest request, Guid id)
     {
         var product = await _repository.GetById<Product>(id);

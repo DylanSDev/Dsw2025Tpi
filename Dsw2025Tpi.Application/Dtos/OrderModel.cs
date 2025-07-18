@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using Dsw2025Tpi.Domain.Entities;
 
 namespace Dsw2025Tpi.Application.Dtos
 {
@@ -18,7 +19,7 @@ namespace Dsw2025Tpi.Application.Dtos
                 string Notes,
                 List<OrderItemModel> OrderItems);
 
-            public record OrderItemModel(
+        public record OrderItemModel(
                 [property: JsonPropertyName("productId")] Guid ProductId,
                 int Quantity,
                 string Name,
@@ -34,7 +35,7 @@ namespace Dsw2025Tpi.Application.Dtos
                 decimal TotalAmount,
                 List<OrderItemResponse> OrderItems,
                 string Status);
-            public record OrderItemResponse(Guid ProductId, decimal UnitPrice, int Quantity, decimal Subtotal);
+        public record OrderItemResponse(Guid ProductId, decimal UnitPrice, int Quantity, decimal Subtotal);
         }
 
     }

@@ -3,6 +3,7 @@ using Dsw2025Tpi.Application.Exceptions;
 using Dsw2025Tpi.Application.Services.Interfaces;
 using Dsw2025Tpi.Domain.Entities;
 using Dsw2025Tpi.Domain.Interfaces;
+using static Dsw2025Tpi.Application.Dtos.OrderModel;
 
 namespace Dsw2025Tpi.Application.Services
 {
@@ -17,12 +18,12 @@ namespace Dsw2025Tpi.Application.Services
 
         public async Task<OrderModel.OrderResponse> AddOrder(OrderModel.OrderRequest request)
         {
-            if (request == null ||
-    request.CustomerId == Guid.Empty ||
-    string.IsNullOrWhiteSpace(request.ShippingAddress) ||
-    string.IsNullOrWhiteSpace(request.BillingAddress) ||
-    request.OrderItems == null ||
-    !request.OrderItems.Any())
+            if (request == null
+                || request.CustomerId == Guid.Empty
+                || string.IsNullOrWhiteSpace(request.ShippingAddress)
+                || string.IsNullOrWhiteSpace(request.BillingAddress)
+                || request.OrderItems == null
+                || !request.OrderItems.Any())
             {
                 throw new ArgumentException("Los datos de la orden no son válidos o están incompletos.");
             }
@@ -71,12 +72,10 @@ namespace Dsw2025Tpi.Application.Services
 
             await _repository.Add(order);
 
-            var responseItems = order.OrderItems.Select(oi => new OrderModel.OrderItemResponse(
-    oi.ProductId,
-    oi.UnitPrice,
-    oi.Quantity,
-    oi.Subtotal
-)).ToList();
+            var responseItems = order.OrderItems.Select(oi => new OrderModel.OrderItemResponse(oi.ProductId,
+                                                                                               oi.UnitPrice,
+                                                                                               oi.Quantity,
+                                                                                               oi.Subtotal)).ToList();
 
             return new OrderModel.OrderResponse(
                 order.Id,
@@ -89,6 +88,64 @@ namespace Dsw2025Tpi.Application.Services
                 responseItems,
                 order.Status.ToString()
             );
+        }
+        
+        public async Task<OrderModel.OrderResponse> GetOrderById (Guid id)
+        {
+            var order = await _repository.First<Order>(p => p.Id == id);
+            if (order == null) throw new EntityNotFoundException("Orden no encontrada");
+
+            return new OrderModel.OrderResponse(
+                order.Id,
+                order.CustomerId,
+                order.ShippingAddress,
+                order.BillingAddress,
+                order.Notes,
+                order.CreateDate,
+                order.TotalAmount,
+                (List<OrderModel.OrderItemResponse>)order.OrderItems,
+                order.Status.ToString()
+                );
+        }
+
+        public async Task<List<OrderModel.OrderResponse>?> GetOrders()
+
+        {
+            var orders = await _repository.GetAll<Order>();
+            if (orders == null) throw new EntityNotFoundException("No se encontraron ordenes.");
+            return orders.Select(p => new OrderModel.OrderResponse(
+                p.Id,
+                p.CustomerId,
+                p.ShippingAddress,
+                p.BillingAddress,
+                p.Notes,
+                p.CreateDate,
+                p.TotalAmount,
+               p.OrderItems.Select(oi => new OrderItemResponse(
+                    oi.ProductId,
+                    oi.UnitPrice,
+                    oi.Quantity,
+                    oi.Subtotal
+                    )).ToList(),
+                p.Status.ToString())).ToList();
+        }
+
+        public async Task<OrderModel.OrderResponse> UpdateOrderState(OrderModel.OrderRequest request, Guid id)
+        {
+            var order = await _repository.GetById<Order>(id);
+            if (order == null) throw new EntityNotFoundException("Orden no encontrada");
+
+            return new OrderModel.OrderResponse(
+                order.Id,
+                order.CustomerId,
+                order.ShippingAddress,
+                order.BillingAddress,
+                order.Notes,
+                order.CreateDate,
+                order.TotalAmount,
+                (List<OrderModel.OrderItemResponse>)order.OrderItems,
+                order.Status+1.ToString()
+                );
         }
     }
 }

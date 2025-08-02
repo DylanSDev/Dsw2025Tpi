@@ -8,34 +8,49 @@ using Dsw2025Tpi.Domain.Entities;
 
 namespace Dsw2025Tpi.Application.Dtos
 {
-   
-       
-        public class OrderModel
-        {
-            public record OrderRequest(
-                [property: JsonPropertyName("customerId")] Guid CustomerId,
-                string ShippingAddress,
-                string BillingAddress,
-                string Notes,
-                List<OrderItemModel> OrderItems);
+    public class OrderModel
+    {
+        public record OrderRequest
+        (
+            [property: JsonPropertyName("customerId")] Guid CustomerId,
+            string ShippingAddress,
+            string BillingAddress,
+            string Notes,
+            List<OrderItemModel> OrderItems
+        );
 
-        public record OrderItemModel(
-                [property: JsonPropertyName("productId")] Guid ProductId,
-                int Quantity,
-                string Name,
-                string Description,
-                decimal CurrentUnitPrice);
+        public record OrderItemModel
+        (
+            [property: JsonPropertyName("productId")] Guid ProductId,
+            int Quantity,
+            string Name,
+            string Description,
+            decimal CurrentUnitPrice
+        );
 
-            public record OrderResponse(Guid Id,
-                Guid CustomerId,
-                string ShippingAddress,
-                string BillingAddress,
-                string Notes,
-                DateTime Date,
-                decimal TotalAmount,
-                List<OrderItemResponse> OrderItems,
-                string Status);
-        public record OrderItemResponse(Guid ProductId, decimal UnitPrice, int Quantity, decimal Subtotal);
-        }
+        public record OrderResponse
+        (
+            Guid Id,
+            Guid CustomerId,
+            string ShippingAddress,
+            string BillingAddress,
+            string Notes,
+            DateTime Date,
+            decimal TotalAmount,
+            List<OrderItemResponse> OrderItems,
+            string Status
+        );
 
+        public record UpdateOrderResponse
+        (
+            string Status
+        );
+        public record OrderItemResponse
+        (
+            Guid ProductId,
+            decimal UnitPrice,
+            int Quantity, 
+            decimal Subtotal
+        );
     }
+}

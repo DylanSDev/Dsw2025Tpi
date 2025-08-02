@@ -7,7 +7,7 @@ using Swashbuckle.AspNetCore.Annotations;
 namespace Dsw2025Tpi.Api.Controllers
 {
     [ApiController]
-    [Route("api/authenticate")] // Añadir la ruta base para el controlador
+    [Route("api/authenticate")]
     public class AuthenticateController : ControllerBase
     {
         private readonly UserManager<IdentityUser> _userManager;
@@ -38,8 +38,7 @@ namespace Dsw2025Tpi.Api.Controllers
             {
                 return Unauthorized(new { message = "Credenciales inválidas" });
             }
-            // Asegúrate de que el rol exista o asigna un rol predeterminado.
-            // Si el usuario no tiene roles, GetRolesAsync puede devolver una colección vacía.
+          
             var roles = await _userManager.GetRolesAsync(user);
             var role = roles.FirstOrDefault() ?? "user";
 
@@ -62,9 +61,6 @@ namespace Dsw2025Tpi.Api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Register([FromBody] RegisterModel request)
         {
-            // La validación de request != null se podría hacer aquí, pero el modelo de enlace
-            // de ASP.NET Core ya debería manejar esto y devolver un 400 si el cuerpo es inválido.
-            // Si llega hasta aquí y request es null, el problema es más profundo en la configuración de Kestrel o de los formatters.
             if (request == null)
             {
                 return BadRequest(new { message = "Los datos de registro son inválidos o incompletos." });
@@ -77,33 +73,34 @@ namespace Dsw2025Tpi.Api.Controllers
 
             var user = new IdentityUser
             {
-                UserName = request.Username, // Usar el Username del request
+                UserName = request.Username, 
                 Email = request.Email
             };
             var result = await _userManager.CreateAsync(user, request.Password);
             if (!result.Succeeded)
             {
-                // Devolver errores más específicos de Identity
                 var errors = result.Errors.Select(e => e.Description).ToList();
                 return BadRequest(new { message = "Error al registrar el usuario", errors = errors });
             }
-            await _userManager.AddToRoleAsync(user, "user"); // Asigna el rol 'user' por defecto
+            await _userManager.AddToRoleAsync(user, "user");
 
-            // Después de crear el usuario, intenta loguearlo y generar el token inmediatamente
             var role = (await _userManager.GetRolesAsync(user)).FirstOrDefault() ?? "user";
             var token = _jwtTokenService.GenerateToken(user.Email, role);
 
-            return Ok(new
-            {
-                message = "Usuario registrado exitosamente",
-                token,
-                user = new
+            return Ok
+            (
+                new
                 {
-                    user.Id,
-                    user.Email,
-                    Role = role
+                    message = "Usuario registrado exitosamente",
+                    token,
+                    user = new
+                    {
+                        user.Id,
+                        user.Email,
+                        Role = role
+                    }
                 }
-            });
+            );
         }
     }
 }

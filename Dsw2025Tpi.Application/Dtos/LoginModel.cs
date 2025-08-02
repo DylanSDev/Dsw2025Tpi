@@ -6,5 +6,9 @@ using System.Threading.Tasks;
 
 namespace Dsw2025Tpi.Application.Dtos
 {
-    public record LoginModel(string Email, string Password);
+    public record LoginModel
+    (
+        string Email,
+        string Password
+    );
 }

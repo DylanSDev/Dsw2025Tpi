@@ -12,7 +12,8 @@ namespace Dsw2025Tpi.Application.Dtos
     {
         public record OrderRequest
         (
-            [property: JsonPropertyName("customerId")] Guid CustomerId,
+            [property: JsonPropertyName("customerId")]
+            Guid CustomerId,
             string ShippingAddress,
             string BillingAddress,
             string Notes,
@@ -21,7 +22,8 @@ namespace Dsw2025Tpi.Application.Dtos
 
         public record OrderItemModel
         (
-            [property: JsonPropertyName("productId")] Guid ProductId,
+            [property: JsonPropertyName("productId")]
+            Guid ProductId,
             int Quantity,
             string Name,
             string Description,
@@ -41,9 +43,21 @@ namespace Dsw2025Tpi.Application.Dtos
             string Status
         );
 
-        public record UpdateOrderResponse
+        public record UpdateOrderRequest
         (
             string Status
+        );
+
+        public record OrderFilter
+        (
+            Guid? CustomerId,
+            string? Status
+        );
+
+        public record PageFilter
+        (
+            int? PageNumber,
+            int? PageSize
         );
         public record OrderItemResponse
         (

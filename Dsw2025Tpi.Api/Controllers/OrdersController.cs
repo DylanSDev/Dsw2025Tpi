@@ -76,7 +76,7 @@ namespace Dsw2025Tpi.Api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<OrderModel.OrderResponse>> UpdateOrderState([FromBody] OrderModel.OrderRequest request,[FromRoute] Guid id)
+        public async Task<ActionResult<OrderModel.OrderResponse>> UpdateOrderState([FromBody] OrderModel.UpdateOrderRequest request,[FromRoute] Guid id)
         {
             var updatedOrder = await _orderManagementService.UpdateOrderState(request, id);
             return Ok(updatedOrder);

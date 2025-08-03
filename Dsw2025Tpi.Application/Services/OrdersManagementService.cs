@@ -66,16 +66,29 @@ namespace Dsw2025Tpi.Application.Services
                 await _repository.Update(product);
             }
 
-            var order = new Order(DateTime.Now, request.ShippingAddress, request.BillingAddress, request.Notes, totalAmount);
+            var order = new Order
+                (
+                    DateTime.Now, 
+                    request.ShippingAddress, 
+                    request.BillingAddress, 
+                    request.Notes, 
+                    totalAmount
+                );
             order.CustomerId = customer.Id;
             order.OrderItems = orderItems;
 
             await _repository.Add(order);
 
-            var responseItems = order.OrderItems.Select(oi => new OrderModel.OrderItemResponse(oi.ProductId,
-                                                                                               oi.UnitPrice,
-                                                                                               oi.Quantity,
-                                                                                               oi.Subtotal)).ToList();
+            var responseItems = order.OrderItems.Select
+            (
+                oi => new OrderModel.OrderItemResponse
+                (
+                    oi.ProductId,
+                    oi.UnitPrice,
+                    oi.Quantity,
+                    oi.Subtotal
+                )
+            ).ToList();
 
             return new OrderModel.OrderResponse(
                 order.Id,
@@ -108,34 +121,54 @@ namespace Dsw2025Tpi.Application.Services
                 );
         }
 
-        public async Task<List<OrderModel.OrderResponse>?> GetOrders()
+        public async Task<List<OrderModel.OrderResponse>?> GetOrders(OrderModel.OrderFilter filter, OrderModel.PageFilter pagefilter)
 
         {
             var orders = await _repository.GetAll<Order>();
             if (orders == null) throw new EntityNotFoundException("No se encontraron ordenes.");
-            return orders.Select(p => new OrderModel.OrderResponse(
-                p.Id,
-                p.CustomerId,
-                p.ShippingAddress,
-                p.BillingAddress,
-                p.Notes,
-                p.CreateDate,
-                p.TotalAmount,
-               p.OrderItems.Select(oi => new OrderItemResponse(
-                    oi.ProductId,
-                    oi.UnitPrice,
-                    oi.Quantity,
-                    oi.Subtotal
-                    )).ToList(),
-                p.Status.ToString())).ToList();
+
+            
+
+            return orders.Select
+            (
+                p => new OrderModel.OrderResponse
+                (
+                    p.Id,
+                    p.CustomerId,
+                    p.ShippingAddress,
+                    p.BillingAddress,
+                    p.Notes,
+                    p.CreateDate,
+                    p.TotalAmount,
+                    p.OrderItems.Select
+                    (oi => new OrderItemResponse
+                        (
+                            oi.ProductId,
+                            oi.UnitPrice,
+                            oi.Quantity,
+                            oi.Subtotal
+                        )
+                    ).ToList(),
+                    p.Status.ToString()
+                )
+            ).ToList();
         }
 
-        public async Task<OrderModel.OrderResponse> UpdateOrderState(OrderModel.OrderRequest request, Guid id)
+        public async Task<OrderModel.OrderResponse> UpdateOrderState(OrderModel.UpdateOrderRequest request, Guid id)
         {
             var order = await _repository.GetById<Order>(id);
             if (order == null) throw new EntityNotFoundException("Orden no encontrada");
+            if (!Enum.TryParse<OrderStatus>(request.Status, ignoreCase: true, out var NewStatus)
+                || !Enum.IsDefined(typeof(OrderStatus), NewStatus))
+                throw new EntityNotFoundException(); //hay que crear una excepcion
+            if (NewStatus == order.Status) { }
+                throw new EntityNotFoundException(); //Otra excepcion de que la orden ya esta en ese estado
 
-            return new OrderModel.OrderResponse(
+            order.Status = NewStatus;
+            await _repository.Update(order);
+
+            return new OrderModel.OrderResponse
+            (
                 order.Id,
                 order.CustomerId,
                 order.ShippingAddress,
@@ -144,8 +177,8 @@ namespace Dsw2025Tpi.Application.Services
                 order.CreateDate,
                 order.TotalAmount,
                 (List<OrderModel.OrderItemResponse>)order.OrderItems,
-                order.Status+1.ToString()
-                );
+                order.Status.ToString()
+            );
         }
     }
 }

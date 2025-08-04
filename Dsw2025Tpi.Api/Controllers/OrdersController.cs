@@ -42,9 +42,9 @@ namespace Dsw2025Tpi.Api.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<OrderModel.OrderResponse>> GetOrders()
+        public async Task<ActionResult<OrderModel.OrderResponse>> GetOrders([FromBody] OrderModel.OrderFilter filter)
         {
-            var orders = await _orderManagementService.GetOrders();
+            var orders = await _orderManagementService.GetOrders(filter);
             if (orders == null || !orders.Any())
             {
                 return NoContent();

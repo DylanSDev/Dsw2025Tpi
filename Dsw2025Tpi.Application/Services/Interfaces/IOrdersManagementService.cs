@@ -6,7 +6,7 @@ namespace Dsw2025Tpi.Application.Services.Interfaces
     {
         Task<OrderModel.OrderResponse> AddOrder(OrderModel.OrderRequest request);
 
-        Task<List<OrderModel.OrderResponse>?> GetOrders(OrderModel.OrderFilter filter, OrderModel.PageFilter pagefilter);
+        Task<List<OrderModel.OrderResponse>?> GetOrders(OrderModel.OrderFilter filter);
 
         Task<OrderModel.OrderResponse> UpdateOrderState(OrderModel.UpdateOrderRequest request, Guid id);
 

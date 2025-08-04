@@ -1,4 +1,5 @@
-﻿using Dsw2025Tpi.Application.Dtos;
+﻿using System.Linq.Expressions;
+using Dsw2025Tpi.Application.Dtos;
 using Dsw2025Tpi.Application.Exceptions;
 using Dsw2025Tpi.Application.Services.Interfaces;
 using Dsw2025Tpi.Domain.Entities;
@@ -121,13 +122,37 @@ namespace Dsw2025Tpi.Application.Services
                 );
         }
 
-        public async Task<List<OrderModel.OrderResponse>?> GetOrders(OrderModel.OrderFilter filter, OrderModel.PageFilter pagefilter)
-
+        public async Task<List<OrderModel.OrderResponse>?> GetOrders(OrderModel.OrderFilter? filter = null)
         {
-            var orders = await _repository.GetAll<Order>();
-            if (orders == null) throw new EntityNotFoundException("No se encontraron ordenes.");
+            IEnumerable<Order>? orders;
+            Expression<Func<Order, bool>> predicate = o =>
+            (filter.CustomerId == null || o.CustomerId == filter.CustomerId)
+             && (filter.Status == null || o.Status.Equals (filter.Status));
 
+            if (filter.CustomerId != null
+                 || filter.Status != null)
+            {
+                orders = await _repository.GetFiltered<Order>(predicate);
+            }
+            else
+            {
+                orders = await _repository.GetAll<Order>();
+            }
+
+            if (orders == null)
+            { 
+                throw new EntityNotFoundException("No se encontraron ordenes."); 
+            }
             
+            int pageNumber = filter.PageNumber ?? 1;
+            int pageSize = filter.PageSize ?? 10;   
+
+            pageNumber = Math.Max(1, pageNumber); 
+            pageSize = Math.Clamp(pageSize, 1, 100); 
+            
+            orders = orders
+                     .Skip((pageNumber - 1) * pageSize)
+                     .Take(pageSize);
 
             return orders.Select
             (

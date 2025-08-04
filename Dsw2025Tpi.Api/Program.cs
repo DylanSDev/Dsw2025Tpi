@@ -126,7 +126,10 @@ using (var scope = app.Services.CreateScope())
     try
     {
         var context = services.GetRequiredService<Dsw2025TpiContext>();
-        context.Database.Migrate(); context.Seedwork<Customer>("sources/Customers.json");
+        context.Database.Migrate();
+        context.Seedwork<Customer>("sources/Customers.json");
+        var contextAuth = services.GetRequiredService<AuthenticateContext>();
+        contextAuth.Database.Migrate();
     }
     catch (Exception ex)
     {

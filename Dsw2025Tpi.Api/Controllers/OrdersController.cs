@@ -42,6 +42,7 @@ namespace Dsw2025Tpi.Api.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<OrderModel.OrderResponse>> GetOrders
             (
                 [FromQuery] Guid? customerId,

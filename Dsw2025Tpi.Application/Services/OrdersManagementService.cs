@@ -134,16 +134,19 @@ namespace Dsw2025Tpi.Application.Services
         public async Task<List<OrderModel.OrderResponse>?> GetOrders(OrderModel.OrderFilter? filter = null)
         {
             IEnumerable<Order>? orders;
+            OrderStatus? filterStatus = null;
 
             if (filter.Status != null)
             {
-                if (!Enum.TryParse<OrderStatus>(filter.Status, ignoreCase: true, out var filterStatus)
-                    || !Enum.IsDefined(typeof(OrderStatus), filterStatus))
-                   throw new InvalidStateException("El estado ingresado no es valido");
+                if (!Enum.TryParse<OrderStatus>(filter.Status, ignoreCase: true, out var parsedStatus)
+                    || !Enum.IsDefined(typeof(OrderStatus), parsedStatus))
+                    throw new InvalidStateException("El estado ingresado no es valido");
+                else
+                    filterStatus = parsedStatus;
             }
             Expression<Func<Order, bool>> predicate = o =>
             (filter.CustomerId == null || o.CustomerId == filter.CustomerId)
-             && (filter.Status == null || o.Status.Equals (filter.Status));
+             && (filterStatus == null || o.Status.Equals (filterStatus));
 
             if (filter.CustomerId != null
                  || filter.Status != null)
@@ -155,7 +158,7 @@ namespace Dsw2025Tpi.Application.Services
                 orders = await _repository.GetAll<Order>(include: "OrderItems");
             }
 
-            if (orders == null || orders.Any())
+            if (orders == null || !orders.Any())
             {
                 throw new EntityNotFoundException("No se encontraron ordenes.");
             }

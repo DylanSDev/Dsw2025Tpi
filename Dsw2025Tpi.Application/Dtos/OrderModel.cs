@@ -24,10 +24,7 @@ namespace Dsw2025Tpi.Application.Dtos
         (
             [property: JsonPropertyName("productId")]
             Guid ProductId,
-            int Quantity,
-            string Name,
-            string Description,
-            decimal CurrentUnitPrice
+            int Quantity
         );
 
         public record OrderResponse

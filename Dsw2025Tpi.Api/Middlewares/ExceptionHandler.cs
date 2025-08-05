@@ -48,6 +48,10 @@ public class ExceptionHandler
             case PriceNullException:
                 statusCode = HttpStatusCode.BadRequest; message = exception.Message;
                 break;
+            case InvalidStateException:
+
+                statusCode = HttpStatusCode.BadRequest; message = exception.Message;
+                break;
 
             default:
                 break;

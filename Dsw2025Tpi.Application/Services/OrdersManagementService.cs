@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using Azure.Core;
 using Dsw2025Tpi.Application.Dtos;
 using Dsw2025Tpi.Application.Exceptions;
 using Dsw2025Tpi.Application.Services.Interfaces;
@@ -106,7 +107,7 @@ namespace Dsw2025Tpi.Application.Services
         
         public async Task<OrderModel.OrderResponse> GetOrderById (Guid id)
         {
-            var order = await _repository.First<Order>(p => p.Id == id);
+            var order = await _repository.First<Order>(p => p.Id == id, include: "OrderItems");
             if (order == null) throw new EntityNotFoundException("Orden no encontrada");
 
             return new OrderModel.OrderResponse(
@@ -117,7 +118,15 @@ namespace Dsw2025Tpi.Application.Services
                 order.Notes,
                 order.CreateDate,
                 order.TotalAmount,
-                (List<OrderModel.OrderItemResponse>)order.OrderItems,
+                order.OrderItems.Select
+                (oi => new OrderItemResponse
+                       (
+                            oi.ProductId,
+                            oi.UnitPrice,
+                            oi.Quantity,
+                            oi.Subtotal
+                       )
+                ).ToList(),
                 order.Status.ToString()
                 );
         }
@@ -125,6 +134,13 @@ namespace Dsw2025Tpi.Application.Services
         public async Task<List<OrderModel.OrderResponse>?> GetOrders(OrderModel.OrderFilter? filter = null)
         {
             IEnumerable<Order>? orders;
+
+            if (filter.Status != null)
+            {
+                if (!Enum.TryParse<OrderStatus>(filter.Status, ignoreCase: true, out var filterStatus)
+                    || !Enum.IsDefined(typeof(OrderStatus), filterStatus))
+                   throw new InvalidStateException("El estado ingresado no es valido");
+            }
             Expression<Func<Order, bool>> predicate = o =>
             (filter.CustomerId == null || o.CustomerId == filter.CustomerId)
              && (filter.Status == null || o.Status.Equals (filter.Status));
@@ -132,18 +148,18 @@ namespace Dsw2025Tpi.Application.Services
             if (filter.CustomerId != null
                  || filter.Status != null)
             {
-                orders = await _repository.GetFiltered<Order>(predicate);
+                orders = await _repository.GetFiltered<Order>(predicate, include: "OrderItems");
             }
             else
             {
-                orders = await _repository.GetAll<Order>();
+                orders = await _repository.GetAll<Order>(include: "OrderItems");
             }
 
-            if (orders == null)
-            { 
-                throw new EntityNotFoundException("No se encontraron ordenes."); 
+            if (orders == null || orders.Any())
+            {
+                throw new EntityNotFoundException("No se encontraron ordenes.");
             }
-            
+
             int pageNumber = filter.PageNumber ?? 1;
             int pageSize = filter.PageSize ?? 10;   
 
@@ -178,17 +194,16 @@ namespace Dsw2025Tpi.Application.Services
                 )
             ).ToList();
         }
-
+        
         public async Task<OrderModel.OrderResponse> UpdateOrderState(OrderModel.UpdateOrderRequest request, Guid id)
         {
-            var order = await _repository.GetById<Order>(id);
+            var order = await _repository.GetById<Order>(id, include: "OrderItems");
             if (order == null) throw new EntityNotFoundException("Orden no encontrada");
             if (!Enum.TryParse<OrderStatus>(request.Status, ignoreCase: true, out var NewStatus)
                 || !Enum.IsDefined(typeof(OrderStatus), NewStatus))
-                throw new EntityNotFoundException(); //hay que crear una excepcion
-            if (NewStatus == order.Status) { }
-                throw new EntityNotFoundException(); //Otra excepcion de que la orden ya esta en ese estado
-
+                throw new InvalidStateException("El estado ingresado no es valido");
+            if (NewStatus == order.Status)
+                throw new InvalidStateException("No se puede ingresar el mismo estado en el que ya esta");
             order.Status = NewStatus;
             await _repository.Update(order);
 
@@ -201,7 +216,15 @@ namespace Dsw2025Tpi.Application.Services
                 order.Notes,
                 order.CreateDate,
                 order.TotalAmount,
-                (List<OrderModel.OrderItemResponse>)order.OrderItems,
+                order.OrderItems.Select
+                (oi => new OrderItemResponse
+                       (
+                            oi.ProductId,
+                            oi.UnitPrice,
+                            oi.Quantity,
+                            oi.Subtotal
+                       )
+                ).ToList(),
                 order.Status.ToString()
             );
         }

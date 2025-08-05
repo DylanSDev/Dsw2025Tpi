@@ -1,16 +1,13 @@
 using Dsw2025Tpi.Data;
-using Dsw2025Tpi.Domain.Interfaces;
-using Dsw2025Tpi.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Dsw2025Tpi.Data.helpers;
 using Dsw2025Tpi.Domain.Entities;
-using Dsw2025Tpi.Application.Services;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using Dsw2025Tpi.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
+using Dsw2025Tpi.Api.Configurations;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -59,7 +56,7 @@ builder.Services.AddSwaggerGen
                     },
                     Array.Empty<string>()
                 }
-            }   
+            }
         );
 
         options.EnableAnnotations();
@@ -69,7 +66,7 @@ builder.Services.AddHealthChecks();
 
 builder.Services.AddIdentity<IdentityUser, IdentityRole>
 (
-    options => {options.Password.RequiredLength = 8;}
+    options => { options.Password.RequiredLength = 8; }
 )
 .AddEntityFrameworkStores<AuthenticateContext>()
 .AddDefaultTokenProviders();
@@ -103,21 +100,7 @@ builder.Services.AddAuthentication
     }
 );
 
-builder.Services.AddDbContext<Dsw2025TpiContext>
-(
-    options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
-);
-
-builder.Services.AddScoped<IRepository, EfRepository>();
-builder.Services.AddScoped<IProductsManagementService, ProductsManagementService>();
-builder.Services.AddScoped<IOrderManagementService, OrdersManagementService>();
-
-builder.Services.AddSingleton<JwtTokenService>();
-
-builder.Services.AddDbContext<AuthenticateContext>
-(
-    options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
-);
+builder.Services.AddDomainServices(builder.Configuration);
 
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())
@@ -158,7 +141,7 @@ using (var scope = app.Services.CreateScope())
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
 
-    string[] roleNames = { "admin", "user" }; 
+    string[] roleNames = { "admin", "user" };
 
     foreach (var roleName in roleNames)
     {
@@ -168,7 +151,6 @@ using (var scope = app.Services.CreateScope())
         }
     }
 
-    
     var adminUserEmail = "admin@example.com";
     var adminUser = await userManager.FindByEmailAsync(adminUserEmail);
 

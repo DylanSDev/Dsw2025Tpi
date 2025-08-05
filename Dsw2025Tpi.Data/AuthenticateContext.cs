@@ -14,12 +14,12 @@ public class AuthenticateContext : IdentityDbContext
     {
         base.OnModelCreating(builder);
 
-        builder.Entity<IdentityUser>(e => { e.ToTable("Usuarios"); });
+        builder.Entity<IdentityUser>(e => { e.ToTable("Users"); });
         builder.Entity<IdentityRole>(e => { e.ToTable("Roles"); });
-        builder.Entity<IdentityUserRole<string>>(e => { e.ToTable("UsuariosRoles"); });
-        builder.Entity<IdentityUserClaim<string>>(e => { e.ToTable("UsuariosClaims"); });
-        builder.Entity<IdentityUserLogin<string>>(e => { e.ToTable("UsuariosLogins"); });
+        builder.Entity<IdentityUserRole<string>>(e => { e.ToTable("UsersRoles"); });
+        builder.Entity<IdentityUserClaim<string>>(e => { e.ToTable("UsersClaims"); });
+        builder.Entity<IdentityUserLogin<string>>(e => { e.ToTable("UsersLogins"); });
         builder.Entity<IdentityRoleClaim<string>>(e => { e.ToTable("RolesClaims"); });
-        builder.Entity<IdentityUserToken<string>>(e => { e.ToTable("UsuariosTokens"); });
+        builder.Entity<IdentityUserToken<string>>(e => { e.ToTable("UsersTokens"); });
     }
 }

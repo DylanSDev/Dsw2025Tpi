@@ -16,60 +16,79 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options =>
-{
-    options.SwaggerDoc("v1", new OpenApiInfo
+builder.Services.AddSwaggerGen
+(
+    options =>
     {
-        Title = "TPI - DSW2025",
-        Version = "v1",
-    });
+        options.SwaggerDoc
+        (
+            "v1",
+            new OpenApiInfo
+            {
+                Title = "TPI - DSW2025",
+                Version = "v1",
+            }
+        );
 
-    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        Name = "Authorization",
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = "Bearer",
-        BearerFormat = "JWT",
-        In = ParameterLocation.Header,
-        Description = "Ingresa 'Bearer ' y luego tu token en el cuadro de texto de abajo. Ejemplo: 'Bearer MITOKENJWT'"
-    });
-
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
+        options.AddSecurityDefinition
+        (
+            "Bearer",
             new OpenApiSecurityScheme
             {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-           Array.Empty<string>()
-        }
-    });
+                Name = "Authorization",
+                Type = SecuritySchemeType.ApiKey,
+                Scheme = "Bearer",
+                BearerFormat = "JWT",
+                In = ParameterLocation.Header,
+                Description = "Ingresa 'Bearer ' y luego tu token en el cuadro de texto de abajo. Ejemplo: 'Bearer MITOKENJWT'"
+            }
+        );
 
-    options.EnableAnnotations();
-});
+        options.AddSecurityRequirement
+        (
+            new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                    },
+                    Array.Empty<string>()
+                }
+            }   
+        );
+
+        options.EnableAnnotations();
+    }
+);
 builder.Services.AddHealthChecks();
 
-builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
-{
-    options.Password.RequiredLength = 8;
-})
-  .AddEntityFrameworkStores<AuthenticateContext>()
-  .AddDefaultTokenProviders();
+builder.Services.AddIdentity<IdentityUser, IdentityRole>
+(
+    options => {options.Password.RequiredLength = 8;}
+)
+.AddEntityFrameworkStores<AuthenticateContext>()
+.AddDefaultTokenProviders();
 
 var jwtConfig = builder.Configuration.GetSection("JwtConfig");
 var keyText = jwtConfig["Key"] ?? throw new ArgumentNullException("JwtConfig:Key no está configurada.");
 var key = Encoding.UTF8.GetBytes(keyText);
 
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-    .AddJwtBearer(options =>
+builder.Services.AddAuthentication
+(
+    options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    }
+)
+.AddJwtBearer
+(
+    options =>
     {
         options.TokenValidationParameters = new TokenValidationParameters
         {
@@ -81,10 +100,13 @@ builder.Services.AddAuthentication(options =>
             ValidAudience = jwtConfig["Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(key)
         };
-    });
+    }
+);
 
-builder.Services.AddDbContext<Dsw2025TpiContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<Dsw2025TpiContext>
+(
+    options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+);
 
 builder.Services.AddScoped<IRepository, EfRepository>();
 builder.Services.AddScoped<IProductsManagementService, ProductsManagementService>();
@@ -92,8 +114,10 @@ builder.Services.AddScoped<IOrderManagementService, OrdersManagementService>();
 
 builder.Services.AddSingleton<JwtTokenService>();
 
-builder.Services.AddDbContext<AuthenticateContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<AuthenticateContext>
+(
+    options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+);
 
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())
@@ -102,7 +126,10 @@ using (var scope = app.Services.CreateScope())
     try
     {
         var context = services.GetRequiredService<Dsw2025TpiContext>();
-        context.Database.Migrate(); context.Seedwork<Customer>("sources/Customers.json");
+        context.Database.Migrate();
+        context.Seedwork<Customer>("sources/Customers.json");
+        var contextAuth = services.GetRequiredService<AuthenticateContext>();
+        contextAuth.Database.Migrate();
     }
     catch (Exception ex)
     {
@@ -131,7 +158,7 @@ using (var scope = app.Services.CreateScope())
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
 
-    string[] roleNames = { "admin", "user" }; // Define los roles que quieres crear
+    string[] roleNames = { "admin", "user" }; 
 
     foreach (var roleName in roleNames)
     {
@@ -141,7 +168,7 @@ using (var scope = app.Services.CreateScope())
         }
     }
 
-    // Opcional: Crear un usuario administrador por defecto si no existe
+    
     var adminUserEmail = "admin@example.com";
     var adminUser = await userManager.FindByEmailAsync(adminUserEmail);
 
@@ -151,9 +178,9 @@ using (var scope = app.Services.CreateScope())
         {
             UserName = "admin",
             Email = adminUserEmail,
-            EmailConfirmed = true // Confirmar el email para que pueda iniciar sesión
+            EmailConfirmed = true
         };
-        var result = await userManager.CreateAsync(adminUser, "Admin123!"); // Contraseña segura para el admin
+        var result = await userManager.CreateAsync(adminUser, "Admin123!");
         if (result.Succeeded)
         {
             await userManager.AddToRoleAsync(adminUser, "admin");

@@ -12,6 +12,8 @@
 
         public Customer Customer { get; set; }
 
+        public Order() 
+        { }
         public Order(DateTime createDate, string shippingAddress, string billingAddress, string notes, decimal totalAmount)
         {
             Id = Guid.NewGuid();

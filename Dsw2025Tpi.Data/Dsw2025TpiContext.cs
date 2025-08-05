@@ -5,8 +5,7 @@ namespace Dsw2025Tpi.Data;
 
 public class Dsw2025TpiContext : DbContext
 {
-    public Dsw2025TpiContext(DbContextOptions<Dsw2025TpiContext> options)
-        : base(options)
+    public Dsw2025TpiContext(DbContextOptions<Dsw2025TpiContext> options) : base(options)
     {
     }
 
@@ -70,6 +69,7 @@ public class Dsw2025TpiContext : DbContext
         dbOrderItem.Property(oi => oi.Subtotal)
             .HasPrecision(15, 2)
             .IsRequired();
+
         modelBuilder.Entity<Order>()
             .HasOne(o => o.Customer)
             .WithMany(c => c.Orders)

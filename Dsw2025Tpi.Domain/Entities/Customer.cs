@@ -6,6 +6,8 @@
         public string Email { get; set; }
         public string PhoneNumber { get; set; }
 
+        public Customer() 
+        { }
         public Customer(string name, string email, string phoneNumber)
         {
             Id = Guid.NewGuid();

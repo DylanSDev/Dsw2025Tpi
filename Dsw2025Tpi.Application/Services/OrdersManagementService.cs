@@ -41,6 +41,8 @@ namespace Dsw2025Tpi.Application.Services
 
             foreach (var itemRequest in request.OrderItems)
             {
+                if(itemRequest.Quantity <= 0)
+                    throw new ArgumentException("La cantidad de un productos en la orden no puede ser 0.");
                 var product = await _repository.GetById<Product>(itemRequest.ProductId);
                 if (product == null || !product.IsActive)
                 {

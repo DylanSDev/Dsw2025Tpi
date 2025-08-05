@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Identity;
 using Dsw2025Tpi.Api.Configurations;
+using Dsw2025Tpi.Api.Db_Initialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -103,23 +104,8 @@ builder.Services.AddAuthentication
 builder.Services.AddDomainServices(builder.Configuration);
 
 var app = builder.Build();
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    try
-    {
-        var context = services.GetRequiredService<Dsw2025TpiContext>();
-        context.Database.Migrate();
-        context.Seedwork<Customer>("sources/Customers.json");
-        var contextAuth = services.GetRequiredService<AuthenticateContext>();
-        contextAuth.Database.Migrate();
-    }
-    catch (Exception ex)
-    {
-        var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred creating the DB.");
-    }
-}
+DbInitializer.DbStart(app);
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -136,39 +122,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-using (var scope = app.Services.CreateScope())
-{
-    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
-
-    string[] roleNames = { "admin", "user" };
-
-    foreach (var roleName in roleNames)
-    {
-        if (!await roleManager.RoleExistsAsync(roleName))
-        {
-            await roleManager.CreateAsync(new IdentityRole(roleName));
-        }
-    }
-
-    var adminUserEmail = "admin@example.com";
-    var adminUser = await userManager.FindByEmailAsync(adminUserEmail);
-
-    if (adminUser == null)
-    {
-        adminUser = new IdentityUser
-        {
-            UserName = "admin",
-            Email = adminUserEmail,
-            EmailConfirmed = true
-        };
-        var result = await userManager.CreateAsync(adminUser, "Admin123!");
-        if (result.Succeeded)
-        {
-            await userManager.AddToRoleAsync(adminUser, "admin");
-        }
-    }
-}
+await DbInitializer.DbIdentityStart(app);
 
 app.MapHealthChecks("/healthcheck");
 

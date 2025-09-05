@@ -1,16 +1,14 @@
 using Dsw2025Tpi.Data;
-using Dsw2025Tpi.Domain.Interfaces;
-using Dsw2025Tpi.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Dsw2025Tpi.Data.helpers;
 using Dsw2025Tpi.Domain.Entities;
-using Dsw2025Tpi.Application.Services;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using Dsw2025Tpi.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
+using Dsw2025Tpi.Api.Configurations;
+using Dsw2025Tpi.Api.Db_Initialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -59,7 +57,7 @@ builder.Services.AddSwaggerGen
                     },
                     Array.Empty<string>()
                 }
-            }   
+            }
         );
 
         options.EnableAnnotations();
@@ -69,7 +67,7 @@ builder.Services.AddHealthChecks();
 
 builder.Services.AddIdentity<IdentityUser, IdentityRole>
 (
-    options => {options.Password.RequiredLength = 8;}
+    options => { options.Password.RequiredLength = 8; }
 )
 .AddEntityFrameworkStores<AuthenticateContext>()
 .AddDefaultTokenProviders();
@@ -103,40 +101,11 @@ builder.Services.AddAuthentication
     }
 );
 
-builder.Services.AddDbContext<Dsw2025TpiContext>
-(
-    options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
-);
-
-builder.Services.AddScoped<IRepository, EfRepository>();
-builder.Services.AddScoped<IProductsManagementService, ProductsManagementService>();
-builder.Services.AddScoped<IOrderManagementService, OrdersManagementService>();
-
-builder.Services.AddSingleton<JwtTokenService>();
-
-builder.Services.AddDbContext<AuthenticateContext>
-(
-    options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
-);
+builder.Services.AddDomainServices(builder.Configuration);
 
 var app = builder.Build();
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    try
-    {
-        var context = services.GetRequiredService<Dsw2025TpiContext>();
-        context.Database.Migrate();
-        context.Seedwork<Customer>("sources/Customers.json");
-        var contextAuth = services.GetRequiredService<AuthenticateContext>();
-        contextAuth.Database.Migrate();
-    }
-    catch (Exception ex)
-    {
-        var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred creating the DB.");
-    }
-}
+DbInitializer.DbStart(app);
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -153,40 +122,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-using (var scope = app.Services.CreateScope())
-{
-    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
-
-    string[] roleNames = { "admin", "user" }; 
-
-    foreach (var roleName in roleNames)
-    {
-        if (!await roleManager.RoleExistsAsync(roleName))
-        {
-            await roleManager.CreateAsync(new IdentityRole(roleName));
-        }
-    }
-
-    
-    var adminUserEmail = "admin@example.com";
-    var adminUser = await userManager.FindByEmailAsync(adminUserEmail);
-
-    if (adminUser == null)
-    {
-        adminUser = new IdentityUser
-        {
-            UserName = "admin",
-            Email = adminUserEmail,
-            EmailConfirmed = true
-        };
-        var result = await userManager.CreateAsync(adminUser, "Admin123!");
-        if (result.Succeeded)
-        {
-            await userManager.AddToRoleAsync(adminUser, "admin");
-        }
-    }
-}
+await DbInitializer.DbIdentityStart(app);
 
 app.MapHealthChecks("/healthcheck");
 

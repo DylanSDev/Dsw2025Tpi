@@ -109,4 +109,37 @@ public class ProductsManagementService : IProductsManagementService
             product.IsActive
         );
     }
+
+    public async Task<ProductModel.ResponsePagination?> GetProducts(ProductModel.FilterProduct request)
+    {
+        var isActive = request.Status == "enabled"
+            ? (bool?)true
+            : request.Status == "disabled"
+                ? (bool?)false
+                : null;
+        var activeProducts = await _repository.GetFiltered<Product>(p =>(
+            
+            (isActive==null || p.IsActive == isActive)&&
+            string.IsNullOrEmpty(request.Search) || p.Name.Contains(request.Search))
+            );
+        if (activeProducts is null || !activeProducts.Any())
+           throw new EntityNotFoundException("No se encontraron productos");
+
+        var products = activeProducts.Select(p => new ProductModel.ProductResponseUpdate(
+            p.Id,
+            p.Sku,
+            p.Name,
+            p.CurrentUnitPrice,
+            p.InternalCode,
+            p.Description,
+            p.StockQuantity,
+            p.IsActive))
+        .OrderBy(p => p.Sku)
+        .Skip((request.PageNumber - 1) * request.PageSize ?? 0)
+        .Take(request.PageSize ?? activeProducts.Count());
+
+        return new ProductModel.ResponsePagination(products.ToList(), activeProducts.Count());
+
+
+    }
 }

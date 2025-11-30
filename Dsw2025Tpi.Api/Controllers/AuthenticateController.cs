@@ -1,5 +1,7 @@
 ﻿using Dsw2025Tpi.Application.Dtos;
 using Dsw2025Tpi.Application.Services;
+using Dsw2025Tpi.Domain.Entities;
+using Dsw2025Tpi.Domain.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -13,12 +15,14 @@ namespace Dsw2025Tpi.Api.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _sigInManager;
         private readonly JwtTokenService _jwtTokenService;
+        private readonly IRepository _repository;
 
-        public AuthenticateController(JwtTokenService jwtTokenService, UserManager<IdentityUser> userManager, SignInManager<IdentityUser> sigInManager)
+        public AuthenticateController(JwtTokenService jwtTokenService, UserManager<IdentityUser> userManager, SignInManager<IdentityUser> sigInManager, IRepository repository)
         {
             _userManager = userManager;
             _sigInManager = sigInManager;
             _jwtTokenService = jwtTokenService;
+            _repository = repository;
         }
 
         [HttpPost("login")]
@@ -71,6 +75,13 @@ namespace Dsw2025Tpi.Api.Controllers
                 return BadRequest(new { message = "El correo electrónico ya está en uso" });
             }
 
+            string roleToAssign = "user";
+
+            if (User.Identity.IsAuthenticated && User.IsInRole("admin"))
+            {
+                roleToAssign = "admin";
+            }
+
             var user = new IdentityUser
             {
                 UserName = request.Username, 
@@ -82,8 +93,26 @@ namespace Dsw2025Tpi.Api.Controllers
                 var errors = result.Errors.Select(e => e.Description).ToList();
                 return BadRequest(new { message = "Error al registrar el usuario", errors = errors });
             }
-            await _userManager.AddToRoleAsync(user, "user");
+            await _userManager.AddToRoleAsync(user, roleToAssign);
 
+            if (roleToAssign == "user")
+            {
+                try
+                {
+                    if (Guid.TryParse(user.Id, out Guid userGuid))
+                    {
+                        var newCustomer = new Customer(userGuid, request.Username, request.Email, "xxx xxx-xxxx");
+
+                        await _repository.Add(newCustomer);
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    await _userManager.DeleteAsync(user);
+                    return StatusCode(500, new { message = "Error creando el perfil de cliente.", error = ex.Message });
+                }
+            }
             var role = (await _userManager.GetRolesAsync(user)).FirstOrDefault() ?? "user";
             var token = _jwtTokenService.GenerateToken(user.Email, role);
 

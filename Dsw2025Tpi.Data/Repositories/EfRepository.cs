@@ -55,6 +55,11 @@ public class EfRepository : IRepository
         return entity;
     }
 
+    public async Task<int> CountAsync<T>() where T : EntityBase
+    {
+        return await _context.Set<T>().CountAsync();
+    }
+
     private static IQueryable<T> Include<T>(IQueryable<T> query, string[] includes) where T : EntityBase
     {
         var includedQuery = query;

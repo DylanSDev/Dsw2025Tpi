@@ -24,6 +24,7 @@ public static class DomainServicesConfigurationExtension
         services.AddScoped<IRepository, EfRepository>();
         services.AddScoped<IProductsManagementService, ProductsManagementService>();
         services.AddScoped<IOrderManagementService, OrdersManagementService>();
+        services.AddScoped<IDashboardManagementService, DashboardManagementService>();
         services.AddSingleton<JwtTokenService>();
 
         return services;

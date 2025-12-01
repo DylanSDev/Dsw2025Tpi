@@ -102,6 +102,16 @@ builder.Services.AddAuthentication
 );
 
 builder.Services.AddDomainServices(builder.Configuration);
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFront", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173")
+              .AllowAnyMethod()  
+              .AllowAnyHeader()
+              .AllowCredentials();
+    });
+});
 
 var app = builder.Build();
 DbInitializer.DbStart(app);
@@ -113,6 +123,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowFront");
 
 app.UseMiddleware<ExceptionHandler>();
 

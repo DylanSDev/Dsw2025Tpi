@@ -41,5 +41,19 @@ namespace Dsw2025Tpi.Application.Dtos
             bool IsActive
         );
         public record ProductResponseID(Guid Id);
+
+        public record ResponsePagination
+        (
+            List<ProductResponseUpdate> ProductsItems,
+            int Total
+        );
+        
+        public record FilterProduct
+        (
+            string? Status,
+            string? Search,
+            int? PageNumber,
+            int? PageSize
+        );
     }
 }

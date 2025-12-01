@@ -31,6 +31,26 @@ namespace Dsw2025Tpi.Api.Controllers
             return CreatedAtAction(nameof(AddProduct), new { id = response.Id }, response);
         }
 
+        [HttpGet("admin")]
+        [Authorize(Roles = "admin")]
+        [SwaggerOperation(Summary = "Buscar Productos por Filtro")]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+      
+        public async Task<IActionResult> GetAuthProducts([FromQuery] ProductModel.FilterProduct request)
+        {
+            var products = await _productsManagementService.GetProductsFiltered(request);
+            if (products == null)
+            {
+                Response.Headers.Append("X-Message", "No hay productos activos");
+                return NoContent();
+            }
+            return Ok(products);
+        }
+
+
         [HttpGet]
         [SwaggerOperation(Summary = "Lista todos los productos")]
         [ProducesResponseType(typeof(IEnumerable<ProductModel.ProductResponse>), StatusCodes.Status200OK)]

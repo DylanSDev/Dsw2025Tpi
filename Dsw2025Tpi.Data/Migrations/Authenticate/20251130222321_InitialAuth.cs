@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Dsw2025Tpi.Data.Migrations.Authenticate
 {
     /// <inheritdoc />
-    public partial class Authenticate_Model : Migration
+    public partial class InitialAuth : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -26,7 +26,7 @@ namespace Dsw2025Tpi.Data.Migrations.Authenticate
                 });
 
             migrationBuilder.CreateTable(
-                name: "Usuarios",
+                name: "Users",
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
@@ -47,7 +47,7 @@ namespace Dsw2025Tpi.Data.Migrations.Authenticate
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Usuarios", x => x.Id);
+                    table.PrimaryKey("PK_Users", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -72,7 +72,7 @@ namespace Dsw2025Tpi.Data.Migrations.Authenticate
                 });
 
             migrationBuilder.CreateTable(
-                name: "UsuariosClaims",
+                name: "UsersClaims",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -83,17 +83,17 @@ namespace Dsw2025Tpi.Data.Migrations.Authenticate
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UsuariosClaims", x => x.Id);
+                    table.PrimaryKey("PK_UsersClaims", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_UsuariosClaims_Usuarios_UserId",
+                        name: "FK_UsersClaims_Users_UserId",
                         column: x => x.UserId,
-                        principalTable: "Usuarios",
+                        principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "UsuariosLogins",
+                name: "UsersLogins",
                 columns: table => new
                 {
                     LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
@@ -103,17 +103,17 @@ namespace Dsw2025Tpi.Data.Migrations.Authenticate
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UsuariosLogins", x => new { x.LoginProvider, x.ProviderKey });
+                    table.PrimaryKey("PK_UsersLogins", x => new { x.LoginProvider, x.ProviderKey });
                     table.ForeignKey(
-                        name: "FK_UsuariosLogins_Usuarios_UserId",
+                        name: "FK_UsersLogins_Users_UserId",
                         column: x => x.UserId,
-                        principalTable: "Usuarios",
+                        principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "UsuariosRoles",
+                name: "UsersRoles",
                 columns: table => new
                 {
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
@@ -121,23 +121,23 @@ namespace Dsw2025Tpi.Data.Migrations.Authenticate
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UsuariosRoles", x => new { x.UserId, x.RoleId });
+                    table.PrimaryKey("PK_UsersRoles", x => new { x.UserId, x.RoleId });
                     table.ForeignKey(
-                        name: "FK_UsuariosRoles_Roles_RoleId",
+                        name: "FK_UsersRoles_Roles_RoleId",
                         column: x => x.RoleId,
                         principalTable: "Roles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_UsuariosRoles_Usuarios_UserId",
+                        name: "FK_UsersRoles_Users_UserId",
                         column: x => x.UserId,
-                        principalTable: "Usuarios",
+                        principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "UsuariosTokens",
+                name: "UsersTokens",
                 columns: table => new
                 {
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
@@ -147,11 +147,11 @@ namespace Dsw2025Tpi.Data.Migrations.Authenticate
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UsuariosTokens", x => new { x.UserId, x.LoginProvider, x.Name });
+                    table.PrimaryKey("PK_UsersTokens", x => new { x.UserId, x.LoginProvider, x.Name });
                     table.ForeignKey(
-                        name: "FK_UsuariosTokens_Usuarios_UserId",
+                        name: "FK_UsersTokens_Users_UserId",
                         column: x => x.UserId,
-                        principalTable: "Usuarios",
+                        principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -170,29 +170,29 @@ namespace Dsw2025Tpi.Data.Migrations.Authenticate
 
             migrationBuilder.CreateIndex(
                 name: "EmailIndex",
-                table: "Usuarios",
+                table: "Users",
                 column: "NormalizedEmail");
 
             migrationBuilder.CreateIndex(
                 name: "UserNameIndex",
-                table: "Usuarios",
+                table: "Users",
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UsuariosClaims_UserId",
-                table: "UsuariosClaims",
+                name: "IX_UsersClaims_UserId",
+                table: "UsersClaims",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UsuariosLogins_UserId",
-                table: "UsuariosLogins",
+                name: "IX_UsersLogins_UserId",
+                table: "UsersLogins",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UsuariosRoles_RoleId",
-                table: "UsuariosRoles",
+                name: "IX_UsersRoles_RoleId",
+                table: "UsersRoles",
                 column: "RoleId");
         }
 
@@ -203,22 +203,22 @@ namespace Dsw2025Tpi.Data.Migrations.Authenticate
                 name: "RolesClaims");
 
             migrationBuilder.DropTable(
-                name: "UsuariosClaims");
+                name: "UsersClaims");
 
             migrationBuilder.DropTable(
-                name: "UsuariosLogins");
+                name: "UsersLogins");
 
             migrationBuilder.DropTable(
-                name: "UsuariosRoles");
+                name: "UsersRoles");
 
             migrationBuilder.DropTable(
-                name: "UsuariosTokens");
+                name: "UsersTokens");
 
             migrationBuilder.DropTable(
                 name: "Roles");
 
             migrationBuilder.DropTable(
-                name: "Usuarios");
+                name: "Users");
         }
     }
 }

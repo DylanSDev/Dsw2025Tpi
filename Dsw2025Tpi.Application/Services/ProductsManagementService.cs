@@ -141,7 +141,7 @@ public class ProductsManagementService : IProductsManagementService
         return new ProductModel.ResponsePagination(products.ToList(), activeProducts.Count());
     }
 
-    public async Task<ProductModel.ResponsePagination?> GetProductsFilteredClient(ProductModel.FilterProductClient request)
+    public async Task<ProductModel.ResponsePagination?> GetProductsFilteredClient(ProductModel.FilterProductClient? request)
     {
         Expression<Func<Product, bool>> predicate = p =>
         p.IsActive == true &&

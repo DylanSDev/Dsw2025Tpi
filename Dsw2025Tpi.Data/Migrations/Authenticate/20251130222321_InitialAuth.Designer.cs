@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Dsw2025Tpi.Data.Migrations.Authenticate
 {
     [DbContext(typeof(AuthenticateContext))]
-    [Migration("20250704070735_Authenticate_Model")]
-    partial class Authenticate_Model
+    [Migration("20251130222321_InitialAuth")]
+    partial class InitialAuth
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -139,7 +139,7 @@ namespace Dsw2025Tpi.Data.Migrations.Authenticate
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
-                    b.ToTable("Usuarios", (string)null);
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
@@ -164,7 +164,7 @@ namespace Dsw2025Tpi.Data.Migrations.Authenticate
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UsuariosClaims", (string)null);
+                    b.ToTable("UsersClaims", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
@@ -186,7 +186,7 @@ namespace Dsw2025Tpi.Data.Migrations.Authenticate
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UsuariosLogins", (string)null);
+                    b.ToTable("UsersLogins", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
@@ -201,7 +201,7 @@ namespace Dsw2025Tpi.Data.Migrations.Authenticate
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("UsuariosRoles", (string)null);
+                    b.ToTable("UsersRoles", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
@@ -220,7 +220,7 @@ namespace Dsw2025Tpi.Data.Migrations.Authenticate
 
                     b.HasKey("UserId", "LoginProvider", "Name");
 
-                    b.ToTable("UsuariosTokens", (string)null);
+                    b.ToTable("UsersTokens", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

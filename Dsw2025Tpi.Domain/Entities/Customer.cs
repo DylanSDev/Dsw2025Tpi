@@ -2,15 +2,16 @@
 {
     public class Customer : EntityBase
     {
+        public Guid idUser { get; set; }
         public string Name { get; set; }
         public string Email { get; set; }
         public string PhoneNumber { get; set; }
 
         public Customer() 
         { }
-        public Customer(string name, string email, string phoneNumber)
+        public Customer(Guid idUser,string name, string email, string phoneNumber)
         {
-            Id = Guid.NewGuid();
+            Id = idUser;
             Name = name;
             Email = email;
             PhoneNumber = phoneNumber;

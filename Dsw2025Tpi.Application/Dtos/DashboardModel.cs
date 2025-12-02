@@ -10,8 +10,8 @@ namespace Dsw2025Tpi.Application.Dtos
     {
         public record Summary
         (
-            long productCount,
-            long orderCount
+            int productCount,
+            int orderCount
         );
     }
 }

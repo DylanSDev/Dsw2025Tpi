@@ -61,7 +61,7 @@ namespace Dsw2025Tpi.Api.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
 
-        public async Task<IActionResult> GetProductsClients([FromQuery] ProductModel.FilterProduct request)
+        public async Task<IActionResult> GetProductsClients([FromQuery] ProductModel.FilterProductClient? request)
         {
             var products = await _productsManagementService.GetProductsFilteredClient(request);
             if (products == null)

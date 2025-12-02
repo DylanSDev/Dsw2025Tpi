@@ -1,4 +1,5 @@
-﻿using Dsw2025Tpi.Application.Dtos;
+﻿using System.Linq.Expressions;
+using Dsw2025Tpi.Application.Dtos;
 using Dsw2025Tpi.Application.Exceptions;
 using Dsw2025Tpi.Application.Services.Interfaces;
 using Dsw2025Tpi.Domain.Entities;
@@ -125,21 +126,56 @@ public class ProductsManagementService : IProductsManagementService
         if (activeProducts is null || !activeProducts.Any())
            throw new EntityNotFoundException("No se encontraron productos");
 
-        var products = activeProducts.Select(p => new ProductModel.ProductResponseUpdate(
+        var products = activeProducts.Select(p => new ProductModel.ProductPaginated(
             p.Id,
             p.Sku,
             p.Name,
             p.CurrentUnitPrice,
             p.InternalCode,
             p.Description,
-            p.StockQuantity,
-            p.IsActive))
+            p.StockQuantity))
         .OrderBy(p => p.Sku)
-        .Skip((request.PageNumber - 1) * request.PageSize ?? 0)
+        .Skip((request.PageNumber - 1) * request.PageSize ?? 1)
         .Take(request.PageSize ?? activeProducts.Count());
 
         return new ProductModel.ResponsePagination(products.ToList(), activeProducts.Count());
+    }
 
+    public async Task<ProductModel.ResponsePagination?> GetProductsFilteredClient(ProductModel.FilterProductClient request)
+    {
+        Expression<Func<Product, bool>> predicate = p =>
+        p.IsActive == true &&
+        (string.IsNullOrEmpty(request.Search) || p.Name.Contains(request.Search));
 
+        var activeProducts = await _repository.GetFiltered<Product>(predicate);
+
+        if (activeProducts == null || !activeProducts.Any())
+        {
+            throw new EntityNotFoundException("No se encontraron productos");
+        }
+
+        int pageNumber = request.PageNumber ?? 1;
+        int pageSize = request.PageSize ?? 10;
+
+        pageNumber = Math.Max(1, pageNumber);
+        pageSize = Math.Clamp(pageSize, 1, 100);
+
+        int totalItems = activeProducts.Count();
+
+        var pagedProducts = activeProducts
+                 .OrderBy(p => p.Sku)
+                 .Skip((pageNumber - 1) * pageSize)
+                 .Take(pageSize);
+
+        var products = pagedProducts.Select(p => new ProductModel.ProductPaginated(
+            p.Id,
+            p.Sku,
+            p.Name,
+            p.CurrentUnitPrice,
+            p.InternalCode,
+            p.Description,
+            p.StockQuantity)).ToList();
+
+        return new ProductModel.ResponsePagination(products, totalItems);
     }
 }

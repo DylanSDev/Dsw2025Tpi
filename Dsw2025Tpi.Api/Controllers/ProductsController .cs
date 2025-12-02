@@ -33,7 +33,9 @@ namespace Dsw2025Tpi.Api.Controllers
 
         [HttpGet("admin")]
         [Authorize(Roles = "admin")]
-        [SwaggerOperation(Summary = "Buscar Productos por Filtro")]
+        [SwaggerOperation(Summary = "Buscar Productos por Filtro (Admin)")]
+        [ProducesResponseType(typeof(ProductModel.ProductResponseUpdate), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -50,16 +52,21 @@ namespace Dsw2025Tpi.Api.Controllers
             return Ok(products);
         }
 
-
         [HttpGet]
-        [SwaggerOperation(Summary = "Lista todos los productos")]
-        [ProducesResponseType(typeof(IEnumerable<ProductModel.ProductResponse>), StatusCodes.Status200OK)]
+        [SwaggerOperation(Summary = "Buscar Productos por Filtro(Cliente)")]
+        [ProducesResponseType(typeof(ProductModel.ProductResponseUpdate), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        public async Task<ActionResult<List<ProductModel.ProductResponse>>> GetProducts()
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+
+        public async Task<IActionResult> GetProductsClients([FromQuery] ProductModel.FilterProduct request)
         {
-            var products = await _productsManagementService.GetProducts();
-            if (products == null || !products.Any())
+            var products = await _productsManagementService.GetProductsFilteredClient(request);
+            if (products == null)
             {
+                Response.Headers.Append("X-Message", "No hay productos activos");
                 return NoContent();
             }
             return Ok(products);
@@ -96,6 +103,7 @@ namespace Dsw2025Tpi.Api.Controllers
         [HttpPatch("{id:guid}")]
         [SwaggerOperation(Summary = "Deshabilita un producto")]
         [Authorize(Roles = "admin")]
+        [ProducesResponseType(typeof(ProductModel.ProductResponseUpdate), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]

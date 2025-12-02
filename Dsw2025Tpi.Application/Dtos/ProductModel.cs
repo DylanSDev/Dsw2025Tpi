@@ -42,15 +42,31 @@ namespace Dsw2025Tpi.Application.Dtos
         );
         public record ProductResponseID(Guid Id);
 
+        public record ProductPaginated
+        (
+            Guid Id,
+            string Sku,
+            string Name,
+            decimal CurrentUnitPrice,
+            string InternalCode,
+            string Description,
+            int StockQuantity
+        );
         public record ResponsePagination
         (
-            List<ProductResponseUpdate> ProductsItems,
+            List<ProductPaginated> ProductsItems,
             int Total
         );
         
         public record FilterProduct
         (
             string? Status,
+            string? Search,
+            int? PageNumber,
+            int? PageSize
+        );
+        public record FilterProductClient
+        (
             string? Search,
             int? PageNumber,
             int? PageSize

@@ -11,7 +11,7 @@ namespace Dsw2025Tpi.Application.Services.Interfaces
 
         Task<List<ProductModel.ProductResponseUpdate>?> GetProducts();
 
-        Task<ProductModel.ResponsePagination?> GetProductsFiltered(ProductModel.FilterProduct request);
+        Task<ProductModel.ResponsePaginationAdmin?> GetProductsFiltered(ProductModel.FilterProduct request);
 
         Task<ProductModel.ResponsePagination?> GetProductsFilteredClient(ProductModel.FilterProductClient? request);
 

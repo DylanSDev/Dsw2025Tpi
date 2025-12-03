@@ -40,6 +40,12 @@ namespace Dsw2025Tpi.Application.Dtos
             int StockQuantity, 
             bool IsActive
         );
+
+        public record ResponsePaginationAdmin
+        (
+            List<ProductResponseUpdate> ProductsItems,
+            int Total
+        );
         public record ProductResponseID(Guid Id);
 
         public record ProductPaginated

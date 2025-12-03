@@ -34,7 +34,7 @@ namespace Dsw2025Tpi.Api.Controllers
         [HttpGet("admin")]
         [Authorize(Roles = "admin")]
         [SwaggerOperation(Summary = "Buscar Productos por Filtro (Admin)")]
-        [ProducesResponseType(typeof(ProductModel.ResponsePagination), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProductModel.ResponsePaginationAdmin), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

@@ -111,7 +111,7 @@ public class ProductsManagementService : IProductsManagementService
         );
     }
 
-    public async Task<ProductModel.ResponsePagination?> GetProductsFiltered(ProductModel.FilterProduct request)
+    public async Task<ProductModel.ResponsePaginationAdmin?> GetProductsFiltered(ProductModel.FilterProduct request)
     {
         var isActive = request.Status == "enabled"
             ? (bool?)true
@@ -126,19 +126,20 @@ public class ProductsManagementService : IProductsManagementService
         if (activeProducts is null || !activeProducts.Any())
            throw new EntityNotFoundException("No se encontraron productos");
 
-        var products = activeProducts.Select(p => new ProductModel.ProductPaginated(
+        var products = activeProducts.Select(p => new ProductModel.ProductResponseUpdate(
             p.Id,
             p.Sku,
             p.Name,
             p.CurrentUnitPrice,
             p.InternalCode,
             p.Description,
-            p.StockQuantity))
+            p.StockQuantity,
+            p.IsActive))
         .OrderBy(p => p.Sku)
         .Skip((request.PageNumber - 1) * request.PageSize ?? 1)
         .Take(request.PageSize ?? activeProducts.Count());
 
-        return new ProductModel.ResponsePagination(products.ToList(), activeProducts.Count());
+        return new ProductModel.ResponsePaginationAdmin(products.ToList(), activeProducts.Count());
     }
 
     public async Task<ProductModel.ResponsePagination?> GetProductsFilteredClient(ProductModel.FilterProductClient? request)

@@ -15,7 +15,7 @@ namespace Dsw2025Tpi.Application.Services.Interfaces
 
         Task<ProductModel.ResponsePagination?> GetProductsFilteredClient(ProductModel.FilterProductClient? request);
 
-        Task<bool> DisableProductAsync(Guid id);
+        Task<bool> ToggleProductStatustAsync(Guid id);
 
         Task<ProductModel.ProductResponseUpdate> UpdateProductAsync(ProductModel.ProductRequest request, Guid id);
     }

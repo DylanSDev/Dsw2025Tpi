@@ -108,9 +108,9 @@ namespace Dsw2025Tpi.Api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public async Task<IActionResult> DisableProduct(Guid id)
+        public async Task<IActionResult> ToggleProductStatust(Guid id)
         {
-            await _productsManagementService.DisableProductAsync(id);
+            await _productsManagementService.ToggleProductStatustAsync(id);
             return NoContent();
         }
     }

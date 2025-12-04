@@ -34,7 +34,7 @@ namespace Dsw2025Tpi.Api.Controllers
         [HttpGet("admin")]
         [Authorize(Roles = "admin")]
         [SwaggerOperation(Summary = "Buscar Productos por Filtro (Admin)")]
-        [ProducesResponseType(typeof(ProductModel.ProductResponseUpdate), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProductModel.ResponsePaginationAdmin), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -54,7 +54,7 @@ namespace Dsw2025Tpi.Api.Controllers
 
         [HttpGet]
         [SwaggerOperation(Summary = "Buscar Productos por Filtro(Cliente)")]
-        [ProducesResponseType(typeof(ProductModel.ProductResponseUpdate), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProductModel.ResponsePagination), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -108,9 +108,9 @@ namespace Dsw2025Tpi.Api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public async Task<IActionResult> DisableProduct(Guid id)
+        public async Task<IActionResult> ToggleProductStatust(Guid id)
         {
-            await _productsManagementService.DisableProductAsync(id);
+            await _productsManagementService.ToggleProductStatustAsync(id);
             return NoContent();
         }
     }

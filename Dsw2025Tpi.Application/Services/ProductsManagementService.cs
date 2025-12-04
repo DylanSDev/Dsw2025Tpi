@@ -18,7 +18,7 @@ public class ProductsManagementService : IProductsManagementService
 
     public async Task<ProductModel.ProductResponseUpdate>? GetProductById(Guid id)
     {
-        var product = await _repository.First<Product>(p => p.Id == id && p.IsActive == true);
+        var product = await _repository.First<Product>(p => p.Id == id);
         if (product == null) throw new EntityNotFoundException("Producto no encontrado");
 
         return new ProductModel.ProductResponseUpdate(
@@ -63,7 +63,9 @@ public class ProductsManagementService : IProductsManagementService
         {
             throw new ArgumentException("Valores para el producto no validos");
         }
-        if (request.CurrentUnitPrice <= 0) throw new PriceNullException("El precio del producto no puede ser cero o menor."); var exist = await _repository.First<Product>(p => p.Sku == request.Sku);
+        if (request.CurrentUnitPrice <= 0) throw new PriceNullException("El precio del producto no puede ser cero o menor.");
+        
+        var exist = await _repository.First<Product>(p => p.Sku == request.Sku);
         if (exist != null) throw new DuplicatedEntityException($"Ya existe un producto con el Sku {request.Sku}");
 
         var product = new Product(request.Sku, request.InternalCode, request.Name, request.Description, request.CurrentUnitPrice, request.StockQuantity);
@@ -72,14 +74,14 @@ public class ProductsManagementService : IProductsManagementService
         return new ProductModel.ProductResponse(product.Id, product.Sku, product.Name, product.CurrentUnitPrice, product.InternalCode, product.Description, product.StockQuantity);
     }
 
-    public async Task<bool> DisableProductAsync(Guid id)
+    public async Task<bool> ToggleProductStatustAsync(Guid id)
     {
         var product = await _repository.GetById<Product>(id);
 
-        if (product is null || !product.IsActive)
+        if (product is null )
             throw new EntityNotFoundException("Producto no encontrado o ya deshabilitado.");
 
-        product.IsActive = false;
+        product.IsActive = !product.IsActive;
         await _repository.Update(product);
         return true;
     }
@@ -87,7 +89,7 @@ public class ProductsManagementService : IProductsManagementService
     public async Task<ProductModel.ProductResponseUpdate> UpdateProductAsync(ProductModel.ProductRequest request, Guid id)
     {
         var product = await _repository.GetById<Product>(id);
-        if (product == null || !product.IsActive)
+        if (product == null)
             throw new EntityNotFoundException($"Producto con ID {id} no encontrado.");
         if (request == null ||
                 string.IsNullOrWhiteSpace(request.Sku) ||
@@ -97,8 +99,11 @@ public class ProductsManagementService : IProductsManagementService
         product.Sku = request.Sku;
         product.InternalCode = request.InternalCode;
         product.Name = request.Name;
-        product.Description = request.Description; product.CurrentUnitPrice = request.CurrentUnitPrice;
-        product.StockQuantity = request.StockQuantity; await _repository.Update(product);
+        product.Description = request.Description; 
+        product.CurrentUnitPrice = request.CurrentUnitPrice;
+        product.StockQuantity = request.StockQuantity;
+
+        await _repository.Update(product);
         return new ProductModel.ProductResponseUpdate(
             product.Id,
             product.Sku,
@@ -111,7 +116,7 @@ public class ProductsManagementService : IProductsManagementService
         );
     }
 
-    public async Task<ProductModel.ResponsePagination?> GetProductsFiltered(ProductModel.FilterProduct request)
+    public async Task<ProductModel.ResponsePaginationAdmin?> GetProductsFiltered(ProductModel.FilterProduct request)
     {
         var isActive = request.Status == "enabled"
             ? (bool?)true
@@ -126,19 +131,20 @@ public class ProductsManagementService : IProductsManagementService
         if (activeProducts is null || !activeProducts.Any())
            throw new EntityNotFoundException("No se encontraron productos");
 
-        var products = activeProducts.Select(p => new ProductModel.ProductPaginated(
+        var products = activeProducts.Select(p => new ProductModel.ProductResponseUpdate(
             p.Id,
             p.Sku,
             p.Name,
             p.CurrentUnitPrice,
             p.InternalCode,
             p.Description,
-            p.StockQuantity))
+            p.StockQuantity,
+            p.IsActive))
         .OrderBy(p => p.Sku)
         .Skip((request.PageNumber - 1) * request.PageSize ?? 1)
         .Take(request.PageSize ?? activeProducts.Count());
 
-        return new ProductModel.ResponsePagination(products.ToList(), activeProducts.Count());
+        return new ProductModel.ResponsePaginationAdmin(products.ToList(), activeProducts.Count());
     }
 
     public async Task<ProductModel.ResponsePagination?> GetProductsFilteredClient(ProductModel.FilterProductClient? request)

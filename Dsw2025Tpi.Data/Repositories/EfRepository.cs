@@ -1,10 +1,11 @@
 ﻿using Dsw2025Tpi.Domain.Entities;
 using Dsw2025Tpi.Domain.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
 namespace Dsw2025Tpi.Data.Repositories;
 
-public class EfRepository: IRepository
+public class EfRepository : IRepository
 {
     private readonly Dsw2025TpiContext _context;
 
@@ -52,6 +53,11 @@ public class EfRepository: IRepository
         _context.Update(entity);
         await _context.SaveChangesAsync();
         return entity;
+    }
+
+    public async Task<int> CountAsync<T>() where T : EntityBase
+    {
+        return await _context.Set<T>().CountAsync();
     }
 
     private static IQueryable<T> Include<T>(IQueryable<T> query, string[] includes) where T : EntityBase
